@@ -1,0 +1,12 @@
+@import url("./base/reset.css");
+@import url("./base/variables.css");
+@import url("./base/typography.css");
+@import url("./base/layout.css");
+@import url("./base/utilities.css");
+
+@import url("./components/header.css");
+@import url("./components/footer.css");
+@import url("./components/hero.css");
+
+@import url("./pages/home.css");
+@import url("./pages/contact.css");

@@ -1,0 +1,179 @@
+site-mocidade-livre
+├── backend
+│   ├── config
+│   │   ├── auth.js
+│   │   ├── env.js
+│   │   └── supabase.js
+│   ├── controllers
+│   │   ├── auth.controller.js
+│   │   ├── http.js
+│   │   └── user.controller.js
+│   ├── repositories
+│   │   ├── auth.repository.js
+│   │   ├── cart.repository.js
+│   │   ├── photo.repository.js
+│   │   ├── product.repository.js
+│   │   └── user.repository.js
+│   ├── services
+│   │   ├── auth.service.js
+│   │   ├── cart.service.js
+│   │   ├── checkout.service.js
+│   │   ├── contact.service.js
+│   │   ├── photo.service.js
+│   │   ├── product.service.js
+│   │   └── user.service.js
+│   └── utils
+│       ├── date.js
+│       ├── guards.js
+│       ├── hash.js
+│       ├── pagination.js
+│       ├── response.js
+│       └── validators.js
+├── netlify
+│   └── functions
+│       ├── auth.js
+│       ├── cart.js
+│       ├── checkout.js
+│       ├── contact.js
+│       ├── events.js
+│       ├── photos.js
+│       ├── products.js
+│       ├── session.js
+│       └── user.js
+├── public
+│   ├── assets
+│   │   ├── css
+│   │   │   ├── base
+│   │   │   │   ├── layout.css
+│   │   │   │   ├── reset.css
+│   │   │   │   ├── typography.css
+│   │   │   │   ├── utilities.css
+│   │   │   │   └── variables.css
+│   │   │   ├── components
+│   │   │   │   ├── alerts.css
+│   │   │   │   ├── badges.css
+│   │   │   │   ├── buttons.css
+│   │   │   │   ├── cards.css
+│   │   │   │   ├── footer.css
+│   │   │   │   ├── forms.css
+│   │   │   │   ├── header.css
+│   │   │   │   ├── hero.css
+│   │   │   │   └── modal.css
+│   │   │   ├── pages
+│   │   │   │   ├── areas.css
+│   │   │   │   ├── auth.css
+│   │   │   │   ├── contact.css
+│   │   │   │   ├── events.css
+│   │   │   │   ├── home.css
+│   │   │   │   └── shop.css
+│   │   │   └── main.css
+│   │   ├── images
+│   │   │   ├── areas
+│   │   │   ├── events
+│   │   │   ├── home
+│   │   │   │   ├── hero-1.svg
+│   │   │   │   ├── hero-2.svg
+│   │   │   │   ├── hero-3.svg
+│   │   │   │   ├── hero-4.svg
+│   │   │   │   ├── livre01.PNG
+│   │   │   │   ├── livre02.PNG
+│   │   │   │   ├── livre03.PNG
+│   │   │   │   ├── livre04.webp
+│   │   │   │   ├── livre05.webp
+│   │   │   │   ├── livre06.webp
+│   │   │   │   ├── livre07.webp
+│   │   │   │   ├── livre08.webp
+│   │   │   │   ├── livre09.webp
+│   │   │   │   ├── livre10.webp
+│   │   │   │   └── logo-mocidade.webp
+│   │   │   ├── shop
+│   │   │   ├── logo-mocidade.webp
+│   │   │   └── logo.svg
+│   │   └── js
+│   │       ├── components
+│   │       │   ├── alert.js
+│   │       │   ├── cart-ui.js
+│   │       │   ├── include.js
+│   │       │   ├── modal.js
+│   │       │   └── navbar.js
+│   │       ├── core
+│   │       │   ├── api.js
+│   │       │   ├── config.js
+│   │       │   ├── router-helpers.js
+│   │       │   ├── session.js
+│   │       │   └── storage.js
+│   │       ├── pages
+│   │       │   ├── areas.js
+│   │       │   ├── contact.js
+│   │       │   ├── events.js
+│   │       │   ├── home.js
+│   │       │   ├── login.js
+│   │       │   ├── register.js
+│   │       │   └── shop.js
+│   │       ├── services
+│   │       │   ├── auth.service.js
+│   │       │   ├── cart.service.js
+│   │       │   ├── contact.service.js
+│   │       │   ├── events.service.js
+│   │       │   ├── photos.service.js
+│   │       │   └── products.service.js
+│   │       └── utils
+│   │           ├── date.js
+│   │           ├── dom.js
+│   │           ├── format.js
+│   │           └── validators.js
+│   ├── components
+│   │   ├── areas
+│   │   │   ├── area-card.html
+│   │   │   ├── area-hero.html
+│   │   │   ├── area-list.html
+│   │   │   └── team-list.html
+│   │   ├── auth
+│   │   │   ├── login-form.html
+│   │   │   └── register-form.html
+│   │   ├── common
+│   │   │   ├── alert.html
+│   │   │   ├── button.html
+│   │   │   ├── empty-state.html
+│   │   │   ├── loading.html
+│   │   │   └── section-title.html
+│   │   ├── contact
+│   │   │   └── interest-form.html
+│   │   ├── events
+│   │   │   ├── event-area.html
+│   │   │   └── event-card.html
+│   │   ├── home
+│   │   │   ├── call-to-action.html
+│   │   │   ├── gallery-preview.html
+│   │   │   ├── hero.html
+│   │   │   ├── ministries-preview.html
+│   │   │   ├── upcoming-events.html
+│   │   │   └── welcome.html
+│   │   ├── layout
+│   │   │   ├── footer.html
+│   │   │   ├── header.html
+│   │   │   ├── mobile-menu.html
+│   │   │   └── nav.html
+│   │   └── shop
+│   │       ├── cart-panel.html
+│   │       ├── checkout-summary.html
+│   │       ├── filters.html
+│   │       └── product-card.html
+│   ├── area-details.html
+│   ├── areas.html
+│   ├── contact.html
+│   ├── event-details.html
+│   ├── events.html
+│   ├── index.html
+│   ├── login.html
+│   ├── register.html
+│   └── shop.html
+├── .env.example
+├── .gitignore
+├── database.md
+├── deno.lock
+├── LICENSE
+├── netlify.toml
+├── package.json
+├── read-projects.py
+└── README.md

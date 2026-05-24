@@ -1,0 +1,14 @@
+{
+  "name": "site-mocidade-livre",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev": "npx netlify dev",
+    "lint": "echo \"(no lint configured)\""
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

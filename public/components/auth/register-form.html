@@ -1,0 +1,42 @@
+<div class="mx-auto" style="max-width: 440px">
+  <div class="p-4 rounded-4 border" style="background: var(--surface); border-color: var(--border)">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <a class="site-logo d-inline-flex align-items-center text-decoration-none bg-white overflow-hidden" href="./">
+        <img src="assets/images/logo-mocidade.webp" alt="Mocidade Livre" width="44" height="44" />
+      </a>
+      <div>
+        <div class="fw-semibold">Criar conta</div>
+        <div class="text-secondary small">Cadastre-se para continuar</div>
+      </div>
+    </div>
+
+    <form id="register-form" action="#" method="post">
+      <div class="mb-3">
+        <label class="form-label" for="register-name">Nome</label>
+        <input class="form-control bg-transparent text-body" id="register-name" name="name" type="text" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="register-email">Email</label>
+        <input class="form-control bg-transparent text-body" id="register-email" name="email" type="email" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="register-telephone">Telefone</label>
+        <input class="form-control bg-transparent text-body" id="register-telephone" name="telephone" type="telephone" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="register-password">Senha</label>
+        <input class="form-control bg-transparent text-body" id="register-password" name="password" type="password" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="register-password2">Confirmar senha</label>
+        <input class="form-control bg-transparent text-body" id="register-password2" name="password2" type="password" required />
+      </div>
+      <button class="btn btn-dark w-100" type="submit">Cadastrar</button>
+    </form>
+
+    <div class="text-secondary small mt-3">
+      Já tem conta? <a href="login.html">Entrar</a>
+    </div>
+  </div>
+</div>
+

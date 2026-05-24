@@ -1,0 +1,66 @@
+
+@import url("../components/hero.css");
+
+body {
+    margin: 0;
+    display: flex;
+    /* width: 95dvw; */
+    flex-direction: column;
+    /* align-items: stretch; */
+    overflow-x: hidden;
+    
+}
+.main {
+    padding-inline: .7rem;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1300px;
+    align-items: stretch;
+    align-self: center;
+    justify-self: center;
+}
+
+.welcome {
+    .box {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+    }
+    .box1 {
+        max-width: 600px;
+    }  
+}
+
+.photos {
+    background-size: cover;
+    background-position: top;
+    background-repeat: no-repeat;
+}
+
+.gallery01 {
+    background-image: url("../../images/home/livre06.webp");
+}
+
+.gallery02 {
+    background-image: url("../../images/home/livre07.webp");
+}
+
+.gallery03 {
+    background-image: url("../../images/home/livre08.webp");
+}
+
+.gallery04 {
+    background-image: url("../../images/home/livre10.webp");
+    background-position: bottom;
+}
+
+@media (max-width: 1040px) {
+    .box {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3rem;
+        .box1, .box2 { display: flex; flex-direction: column; width: 100%; text-align: center; align-items: center;}
+    }
+}

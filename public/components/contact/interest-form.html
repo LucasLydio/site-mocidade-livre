@@ -1,0 +1,63 @@
+<section class="p-4 rounded-4 border" style="background: var(--surface); border-color: var(--border)">
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-chat-dots"></i>
+        <div class="fw-semibold">Formulário de Interesse</div>
+    </div>
+
+    <form id="join-form" action="#" method="post">
+        <div class="row g-3">
+        <div class="col-12 col-md-6">
+            <label class="form-label" for="join-name">Nome</label>
+            <input class="form-control bg-transparent " id="join-name" name="name" type="text" required />
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label" for="join-whatsapp">WhatsApp</label>
+            <input
+            class="form-control bg-transparent "
+            id="join-whatsapp"
+            name="whatsapp"
+            type="tel"
+            placeholder="(DD) 9xxxx-xxxx"
+            required
+            />
+        </div>
+
+        <div class="col-12 col-md-6">
+            <label class="form-label" for="join-email">Email</label>
+            <input class="form-control bg-transparent text-body" id="join-email" name="email" type="email" />
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label" for="join-area">Área de interesse</label>
+            <select class="form-select bg-transparent " id="join-area" name="area" required>
+            <option value="" selected disabled>Selecione…</option>
+            <option value="primeira-visita">Primeira visita</option>
+            <option value="eventos">Eventos</option>
+            <option value="louvor">Louvor</option>
+            <option value="midia">Mídia</option>
+            <option value="acolhimento">Acolhimento</option>
+            <option value="outro">Outro</option>
+            </select>
+        </div>
+
+        <div class="col-12">
+            <label class="form-label" for="join-message">Mensagem (opcional)</label>
+            <textarea
+            class="form-control bg-transparent"
+            id="join-message"
+            name="message"
+            rows="4"
+            placeholder="Conte um pouco sobre você e como prefere participar…"
+            ></textarea>
+        </div>
+        </div>
+
+        <div class="d-flex flex-column flex-sm-row gap-2 justify-content-between align-items-start mt-4">
+        <div class="text-secondary small">
+            Ao enviar, você concorda em ser contatado(a) pela equipe da Mocidade Livre.
+        </div>
+        <button class="btn btn-dark" type="submit">
+            <i class="bi bi-send me-2"></i>Enviar
+        </button>
+        </div>
+    </form>
+</section>

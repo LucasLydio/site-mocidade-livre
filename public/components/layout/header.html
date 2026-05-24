@@ -1,0 +1,42 @@
+<header class="site-header">
+  <div class="container py-3">
+    <div class="d-flex align-items-center justify-content-between gap-3">
+      <div class="d-flex align-items-center gap-2 site-logo-container">
+        <a class="site-logo align-items-center text-decoration-none bg-white overflow-hidden" href="./" aria-label="Início">
+          <img src="assets/images/logo-mocidade.webp" alt="Mocidade Livre" width="42" height="42" />
+        </a>
+        <a class="text-decoration-none" href="./" aria-label="Início">
+          Mocidade Livre
+        </a>
+      </div>
+
+      <div class="d-none d-md-flex justify-content-center ">
+        <div data-include="components/layout/nav.html"></div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 actions">
+        <button class="btn  btn-sm theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema">
+          <i class="bi bi-brightness-high" id="theme-icon" aria-hidden="true"></i>
+        </button>
+
+        <a class="btn btn-sm login" href="login.html" aria-label="Entrar">
+          <i class="bi bi-person" aria-hidden="true"></i>
+        </a>
+
+        <button
+          class="btn  btn-sm d-md-none btn-menu"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#mobileMenu"
+          aria-controls="mobileMenu"
+          aria-label="Abrir menu"
+        >
+          <i class="bi bi-list" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div data-include="components/layout/mobile-menu.html"></div>
+

@@ -1,0 +1,14 @@
+.admin-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+[data-admin-images] img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
