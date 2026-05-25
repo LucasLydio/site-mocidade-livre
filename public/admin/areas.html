@@ -16,9 +16,9 @@
   <body class="admin admin-areas">
     <div data-include="../components/layout/header.html"></div>
 
-    <main class="container py-5">
-      <section class="admin-shell p-4 p-md-5 rounded-4 border" style="background: var(--surface); border-color: var(--border)">
-        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+    <main class=" py-5">
+      <section class="admin-shell p-3 p-md-4 rounded-4 border " style="background: var(--surface); ">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4" >
           <div>
             <h1 class="h4 mb-1">Admin • Áreas</h1>
             <p class="text-secondary mb-0">Crie e gerencie as áreas/ministries do grupo.</p>
@@ -35,9 +35,9 @@
 
         <div class="alert d-none" id="admin-alert" role="alert"></div>
 
-        <div class="row g-4">
-          <div class="col-12 col-lg-5">
-            <section class="p-4 rounded-4 border h-100" style="border-color: var(--border)">
+        <div class="row g-4" >
+          <div class="col-12 col-lg-5" >
+            <section class="p-4 rounded-4 border h-100" style="background: var(--bg); border-color: var(--border)">
               <div class="d-flex align-items-center justify-content-between mb-3">
                 <div>
                   <div class="fw-semibold">Área</div>
@@ -104,7 +104,7 @@
           </div>
 
           <div class="col-12 col-lg-7">
-            <section class="p-4 rounded-4 border h-100" style="border-color: var(--border)">
+            <section class="p-4 rounded-4 border h-100" style="background: var(--bg); border-color: var(--border)">
               <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
                 <div>
                   <div class="fw-semibold">Áreas</div>
@@ -121,8 +121,8 @@
               <div class="text-secondary small d-none" data-admin-loading>Carregando...</div>
               <div class="text-secondary small d-none" data-admin-empty>Nenhuma área cadastrada.</div>
 
-              <div class="table-responsive d-none d-md-block">
-                <table class="table align-middle mb-0">
+              <!-- <div class="table-responsive d-none d-md-block bg-dark">
+                <table class="table align-middle mb-0 ">
                   <thead>
                     <tr>
                       <th>Área</th>
@@ -132,9 +132,9 @@
                   </thead>
                   <tbody data-admin-rows></tbody>
                 </table>
-              </div>
+              </div> -->
 
-              <div class="d-md-none d-flex flex-column gap-2" data-admin-cards></div>
+              <div class=" d-flex flex-column gap-2" data-admin-cards></div>
             </section>
           </div>
         </div>

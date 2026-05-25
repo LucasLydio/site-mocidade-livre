@@ -16,21 +16,51 @@
   <body class="admin admin-contact-interests">
     <div data-include="../components/layout/header.html"></div>
 
-    <main class="container py-5">
-      <section class="admin-shell p-4 p-md-5 rounded-4 border" style="background: var(--surface); border-color: var(--border)">
-        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
+    <main class="py-5">
+      <section class="admin-shell p-3 p-md-4 rounded-4 border" style="background: var(--surface)">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
           <div>
             <h1 class="h4 mb-1">Admin • Interesses</h1>
-            <p class="text-secondary mb-0">Em breve.</p>
+            <p class="text-secondary mb-0">Mensagens enviadas pelo formulário de contato.</p>
           </div>
           <a class="btn btn-outline-secondary btn-sm" href="./index.html">
             <i class="bi bi-grid me-2" aria-hidden="true"></i>Admin
           </a>
         </div>
 
-        <div class="alert alert-secondary mb-0">
-          Página placeholder. Podemos implementar listagem/gestão de <code>contact_interests</code> depois.
-        </div>
+        <div class="alert d-none" id="admin-alert" role="alert"></div>
+
+        <section class="p-4 rounded-4 border" style="background: var(--bg); border-color: var(--border)">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <div>
+              <div class="fw-semibold">Filtros</div>
+              <div class="text-secondary small">Status e busca</div>
+            </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <select class="form-select form-select-sm bg-transparent text-body" style="max-width: 170px" data-admin-filter-status>
+                <option value="all">Todos</option>
+                <option value="new">Novos</option>
+                <option value="contacted">Contactados</option>
+                <option value="archived">Arquivados</option>
+              </select>
+              <input
+                class="form-control form-control-sm bg-transparent text-body"
+                style="max-width: 240px"
+                type="search"
+                placeholder="Buscar..."
+                data-admin-search
+              />
+              <button class="btn btn-outline-secondary btn-sm" type="button" data-admin-refresh>
+                <i class="bi bi-arrow-clockwise me-2" aria-hidden="true"></i>Atualizar
+              </button>
+            </div>
+          </div>
+
+          <div class="text-secondary small d-none" data-admin-loading>Carregando...</div>
+          <div class="text-secondary small d-none" data-admin-empty>Nenhum interesse encontrado.</div>
+
+          <div class="d-flex flex-column gap-2" data-admin-cards></div>
+        </section>
       </section>
     </main>
 
@@ -38,7 +68,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="../assets/js/components/include.js"></script>
-    <script type="module" src="../assets/js/pages/admin/index.js"></script>
+    <script type="module" src="../assets/js/pages/admin/contact-interests.js"></script>
   </body>
 </html>
-

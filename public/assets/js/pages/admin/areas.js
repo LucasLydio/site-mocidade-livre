@@ -76,12 +76,13 @@ function renderList(areas) {
       const card = document.createElement('div');
       card.className = 'p-3 rounded-4 border';
       card.style.borderColor = 'var(--border)';
-      card.style.background = 'var(--surface)';
+      card.style.background = 'var(--bg)';
       card.innerHTML = `
-        <div class="d-flex justify-content-between gap-2">
+        <div class="d-flex flex-column justify-content-between gap-2">
           <div>
             <div class="fw-semibold">${escapeHtml(a.name)}</div>
-            <div class="text-secondary small">${escapeHtml(a.slug)} • ${status}</div>
+            <div class="text-secondary small">${escapeHtml(a.slug)} </div>
+            <span class="badge ${a.is_active ? 'text-bg-success' : 'text-bg-secondary'}">${status}</span>
           </div>
           <div class="d-flex gap-2">
             <button class="btn btn-outline-secondary btn-sm" type="button" data-admin-edit="${a.id}">Editar</button>

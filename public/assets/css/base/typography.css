@@ -62,7 +62,7 @@ a, p, button, input, select {
   margin: 0;
   font-size: clamp(.85rem, .8rem + 2vw, .9rem) !important;
   line-height: 1.7;
-  color: var(--text);
+  /* color: var(--text); */
   font-weight: 400;
 }
 
@@ -79,9 +79,9 @@ textarea {
   color: var(--text) !important;
 }
 
-::placeholder {
+/* ::placeholder {
   color: var(--text3) !important;
-}
+} */
 
 
 

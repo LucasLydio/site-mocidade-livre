@@ -1,12 +1,33 @@
-<div class="event-area">
-    <div class="event-area-container">
-        <div class="event-area-cta">
-            <h3>Nossos Eventos</h3>
-            <p>Fique por dentro de tudo que acontece por aqui!</p>
-            <hr class="w-75">
-        </div>
-        <div class="event-area-row">
-            <div data-include="components/events/event-card.html"></div>
-        </div>
+<div class="events-page">
+  <header class="mb-4">
+    <h1 class="h3 mb-1">Eventos</h1>
+    <p class="text-secondary mb-0">Fique por dentro do que acontece por aqui. Confira os próximos encontros e eventos especiais.</p>
+  </header>
+
+  <section class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div class="input-group input-group-sm" style="max-width: 340px">
+      <span class="input-group-text bg-transparent text-body" aria-hidden="true"><i class="bi bi-search"></i></span>
+      <input class="form-control bg-transparent text-body" type="search" placeholder="Buscar eventos..." data-events-search />
     </div>
+    <a class="btn btn-outline-secondary btn-sm" href="contact.html">
+      <i class="bi bi-chat-dots me-2" aria-hidden="true"></i>Quero participar
+    </a>
+  </section>
+
+  <div class="alert d-none" data-events-alert role="alert"></div>
+  <div class="text-secondary small" data-events-loading>Carregando...</div>
+  <div class="text-secondary small d-none" data-events-empty>Nenhum evento publicado no momento.</div>
+
+  <section class="d-none" data-events-upcoming-section>
+    <h2 class="h5 mt-4 mb-3">Próximos eventos</h2>
+    <div class="row g-3" data-events-upcoming></div>
+  </section>
+
+  <section class="d-none" data-events-past-section>
+    <h2 class="h5 mt-4 mb-3">Eventos passados</h2>
+    <div class="row g-3" data-events-past></div>
+  </section>
+
+  <div data-include="components/events/event-card.html"></div>
 </div>
+

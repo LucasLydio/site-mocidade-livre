@@ -2,3 +2,14 @@ body.contact main.container {
   max-width: 900px;
 }
 
+.contact-option {
+  background: var(--surface);
+  color: var(--text);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.contact-option:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
