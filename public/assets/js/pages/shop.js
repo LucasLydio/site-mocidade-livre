@@ -2,6 +2,7 @@ import { initCartUi } from '../components/cart-ui.js';
 import { listCategories } from '../services/categories.service.js';
 import { listProducts } from '../services/products.service.js';
 import { formatBRLFromCents } from '../utils/format.js';
+import { setSafeImage } from '../utils/dom.js';
 
 function waitForLayoutReady() {
   if (window.__mocidadeLayoutReady) return Promise.resolve();
@@ -68,25 +69,29 @@ function renderProducts(products) {
 
     const img = node.querySelector('[data-product-image]');
     if (img) {
-      const src = product.cover_image?.image_url || 'assets/images/shop/placeholder.svg';
-      img.setAttribute('src', src);
-      img.setAttribute('alt', product.cover_image?.alt_text || product.name);
+      const coverImage = product.images?.find((image) => image.isCover) || product.images?.[0];
+      const src = coverImage?.imageUrl || 'assets/images/shop/placeholder.svg';
+      setSafeImage(img, {
+        src,
+        fallback: 'assets/images/shop/placeholder.svg',
+        alt: coverImage?.altText || product.name
+      });
     }
 
     node.querySelector('[data-product-name]')?.append(product.name);
     node.querySelector('[data-product-description]')?.append(product.description || '');
-    node.querySelector('[data-product-price]')?.append(formatBRLFromCents(product.price_cents));
+    node.querySelector('[data-product-price]')?.append(formatBRLFromCents(product.priceCents));
 
     const stock = node.querySelector('[data-product-stock]');
     if (stock) {
-      const inStock = (product.stock_qty ?? 0) > 0;
+      const inStock = (product.stockQty ?? 0) > 0;
       stock.className = `badge ${inStock ? 'text-bg-success' : 'text-bg-secondary'}`;
-      stock.textContent = inStock ? `Em estoque (${product.stock_qty})` : 'Sem estoque';
+      stock.textContent = inStock ? `Em estoque (${product.stockQty})` : 'Sem estoque';
     }
 
     const btn = node.querySelector('[data-add-to-cart]');
     if (btn) {
-      btn.disabled = (product.stock_qty ?? 0) <= 0;
+      btn.disabled = (product.stockQty ?? 0) <= 0;
     }
 
     root.appendChild(node);
@@ -107,12 +112,11 @@ async function init() {
     document.querySelector('[data-shop-loading]')?.classList.remove('d-none');
 
     try {
-      const categoriesRes = await listCategories({ is_active: true, limit: 100, offset: 0 });
-      categories = categoriesRes.items || categoriesRes || [];
+      categories = await listCategories({ limit: 100 });
       renderCategoryFilters({ categories, activeCategoryId });
 
       const products = await listProducts({ categoryId: activeCategoryId });
-      renderProducts(products || []);
+      renderProducts(products);
     } catch (err) {
       setAlert(err.message || 'Falha ao carregar a loja.', 'danger');
     } finally {

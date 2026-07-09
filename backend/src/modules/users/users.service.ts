@@ -1,6 +1,7 @@
 import { hashPassword } from "../../utils/hash";
+import { cacheNamespaces } from "../../infra/redis/cache.namespaces";
+import { invalidateCacheNamespace } from "../../infra/redis/cache.service";
 import { paginationMeta } from "../../utils/pagination";
-import { deleteCache } from "../../infra/redis/cache.service";
 import {
   UserRole,
   type CreateUserInput,
@@ -34,8 +35,6 @@ export const usersService = {
       passwordHash
     });
 
-    await deleteCache("users:list");
-
     return user;
   },
 
@@ -58,13 +57,15 @@ export const usersService = {
       passwordHash
     });
 
-    await deleteCache("users:list");
+    if (input.name !== undefined) {
+      await invalidateCacheNamespace(cacheNamespaces.events);
+    }
 
     return user;
   },
 
   async delete(id: string): Promise<void> {
     await usersRepository.delete(id);
-    await deleteCache("users:list");
+    await invalidateCacheNamespace(cacheNamespaces.events);
   }
 };

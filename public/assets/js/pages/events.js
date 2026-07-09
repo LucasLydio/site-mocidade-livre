@@ -1,4 +1,5 @@
 import { listPublishedEvents } from '../services/events.service.js';
+import { setSafeImage } from '../utils/dom.js';
 
 function waitForLayoutReady() {
   if (window.__mocidadeLayoutReady) return Promise.resolve();
@@ -42,15 +43,18 @@ function formatRange(startsAt, endsAt) {
 }
 
 function isUpcoming(event, nowMs) {
-  const start = toDate(event?.starts_at);
+  const start = toDate(event?.startsAt);
   if (!start) return false;
   return start.getTime() >= nowMs;
 }
 
 function setCover(img, { url, title }) {
   if (!img) return;
-  img.src = url || 'assets/images/areas/placeholder.svg';
-  img.alt = title || 'Capa do evento';
+  setSafeImage(img, {
+    src: url,
+    fallback: 'assets/images/areas/placeholder.svg',
+    alt: title || 'Capa do evento'
+  });
 }
 
 function renderCards({ upcoming = [], past = [] } = {}) {
@@ -85,7 +89,7 @@ function renderCards({ upcoming = [], past = [] } = {}) {
 
     node.querySelector('[data-event-title]')?.append(ev.title || '');
     node.querySelector('[data-event-summary]')?.append(ev.summary || '');
-    node.querySelector('[data-event-datetime]')?.append(formatRange(ev.starts_at, ev.ends_at));
+    node.querySelector('[data-event-datetime]')?.append(formatRange(ev.startsAt, ev.endsAt));
 
     const badge = node.querySelector('[data-event-badge]');
     if (badge) {
@@ -94,13 +98,13 @@ function renderCards({ upcoming = [], past = [] } = {}) {
     }
 
     const locRow = node.querySelector('[data-event-location-row]');
-    const loc = String(ev.location_name || '').trim();
-    const addr = String(ev.location_address || '').trim();
+    const loc = String(ev.locationName || '').trim();
+    const addr = String(ev.locationAddress || '').trim();
     if (locRow) locRow.classList.toggle('d-none', !loc && !addr);
     node.querySelector('[data-event-location]')?.append(loc || 'Local a confirmar');
     node.querySelector('[data-event-address]')?.append(addr || '');
 
-    setCover(node.querySelector('[data-event-cover]'), { url: ev.cover_image_url, title: ev.title });
+    setCover(node.querySelector('[data-event-cover]'), { url: ev.coverImageUrl, title: ev.title });
   };
 
   for (const ev of upcoming) {
@@ -124,12 +128,12 @@ async function load({ search } = {}) {
   document.querySelector('[data-events-past-section]')?.classList.add('d-none');
 
   try {
-    const result = await listPublishedEvents({ search: search || null, limit: 200, offset: 0, status: 'all' });
-    const items = Array.isArray(result?.items) ? result.items : Array.isArray(result) ? result : [];
+    const result = await listPublishedEvents({ search: search || null, limit: 100 });
+    const items = Array.isArray(result) ? result : [];
 
     const nowMs = Date.now();
-    const upcoming = items.filter((e) => isUpcoming(e, nowMs)).sort((a, b) => toDate(a.starts_at) - toDate(b.starts_at));
-    const past = items.filter((e) => !isUpcoming(e, nowMs)).sort((a, b) => toDate(b.starts_at) - toDate(a.starts_at));
+    const upcoming = items.filter((e) => isUpcoming(e, nowMs)).sort((a, b) => toDate(a.startsAt) - toDate(b.startsAt));
+    const past = items.filter((e) => !isUpcoming(e, nowMs)).sort((a, b) => toDate(b.startsAt) - toDate(a.startsAt));
 
     renderCards({ upcoming, past });
   } catch (err) {
@@ -168,4 +172,3 @@ async function init() {
 }
 
 void init();
-

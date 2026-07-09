@@ -1,4 +1,5 @@
 import { getActiveAreas } from '../services/areas.service.js';
+import { setSafeImage } from '../utils/dom.js';
 
 function waitForLayoutReady() {
   if (window.__mocidadeLayoutReady) return Promise.resolve();
@@ -46,8 +47,11 @@ function renderAreas(areas) {
 
     const img = node.querySelector('[data-area-image]');
     if (img) {
-      img.src = area.cover_image_url || 'assets/images/areas/placeholder.svg';
-      img.alt = area.name;
+      setSafeImage(img, {
+        src: area.coverImageUrl,
+        fallback: 'assets/images/areas/placeholder.svg',
+        alt: area.name
+      });
     }
 
     const cta = node.querySelector('[data-area-cta]');
@@ -76,4 +80,3 @@ async function init() {
 }
 
 void init();
-

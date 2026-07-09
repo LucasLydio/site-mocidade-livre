@@ -3,15 +3,16 @@ import { getMe as getUserMe } from '../services/user.service.js';
 import { createCategory, listCategories } from '../services/categories.service.js';
 import {
   createProduct,
+  createProductImage,
   deleteProduct,
   getProductById,
   listProducts,
   updateProduct,
-  uploadProductImage,
   updateProductImage,
   deleteProductImage
 } from '../services/products.service.js';
 import { formatBRLFromCents } from '../utils/format.js';
+import { safeWebUrl } from '../utils/dom.js';
 
 function waitForLayoutReady() {
   if (window.__mocidadeLayoutReady) return Promise.resolve();
@@ -49,7 +50,7 @@ function fillCategorySelect(select, categories) {
   for (const cat of categories) {
     const opt = document.createElement('option');
     opt.value = cat.id;
-    opt.textContent = `${cat.name}${cat.is_active ? '' : ' (inativa)'}`;
+    opt.textContent = `${cat.name}${cat.isActive ? '' : ' (inativa)'}`;
     select.appendChild(opt);
   }
 }
@@ -64,7 +65,7 @@ function renderProductRows(products) {
   if (empty) empty.classList.toggle('d-none', products.length !== 0);
 
   for (const p of products) {
-    const status = p.is_active ? 'Ativo' : 'Inativo';
+    const status = p.isActive ? 'Ativo' : 'Inativo';
 
     if (tbody) {
       const tr = document.createElement('tr');
@@ -73,9 +74,9 @@ function renderProductRows(products) {
           <div class="fw-semibold">${escapeHtml(p.name)}</div>
           <div class="text-secondary small">${escapeHtml(p.slug)}</div>
         </td>
-        <td>${escapeHtml(formatBRLFromCents(p.price_cents))}</td>
-        <td>${escapeHtml(String(p.stock_qty ?? 0))}</td>
-        <td><span class="badge ${p.is_active ? 'text-bg-success' : 'text-bg-secondary'}">${status}</span></td>
+        <td>${escapeHtml(formatBRLFromCents(p.priceCents))}</td>
+        <td>${escapeHtml(String(p.stockQty ?? 0))}</td>
+        <td><span class="badge ${p.isActive ? 'text-bg-success' : 'text-bg-secondary'}">${status}</span></td>
         <td class="text-end">
           <button class="btn btn-outline-secondary btn-sm" type="button" data-admin-edit="${p.id}">
             <i class="bi bi-pencil me-1" aria-hidden="true"></i>Editar
@@ -94,8 +95,8 @@ function renderProductRows(products) {
         <div class="d-flex justify-content-between gap-2">
           <div>
             <div class="fw-semibold">${escapeHtml(p.name)}</div>
-            <div class="text-secondary small">${escapeHtml(formatBRLFromCents(p.price_cents))} • estoque ${escapeHtml(
-        String(p.stock_qty ?? 0),
+            <div class="text-secondary small">${escapeHtml(formatBRLFromCents(p.priceCents))} • estoque ${escapeHtml(
+        String(p.stockQty ?? 0),
       )}</div>
           </div>
           <button class="btn btn-outline-secondary btn-sm" type="button" data-admin-edit="${p.id}">Editar</button>
@@ -120,20 +121,21 @@ function setFormMode(form, { product = null } = {}) {
 
   form.reset();
   form.querySelector('[name="id"]').value = product?.id || '';
-  form.querySelector('[name="category_id"]').value = product?.category_id || '';
+  form.querySelector('[name="category_id"]').value = product?.categoryId || '';
   form.querySelector('[name="name"]').value = product?.name || '';
   form.querySelector('[name="slug"]').value = product?.slug || '';
   form.querySelector('[name="description"]').value = product?.description || '';
-  form.querySelector('[name="stock_qty"]').value = String(product?.stock_qty ?? 0);
-  form.querySelector('[name="is_active"]').checked = product ? Boolean(product.is_active) : true;
+  form.querySelector('[name="stock_qty"]').value = String(product?.stockQty ?? 0);
+  form.querySelector('[name="is_active"]').checked = product ? Boolean(product.isActive) : true;
 
-  const priceBrl = product ? formatBRLFromCents(product.price_cents).replace('R$', '').trim() : '';
+  const priceBrl = product ? formatBRLFromCents(product.priceCents).replace('R$', '').trim() : '';
   form.querySelector('[name="price_brl"]').value = priceBrl;
 
   if (deleteBtn) deleteBtn.disabled = !product?.id;
 
   const uploadBtn = document.querySelector('[data-admin-upload-image]');
-  if (uploadBtn) uploadBtn.disabled = !product?.id;
+  const imageUrl = document.getElementById('admin-image-url')?.value?.trim();
+  if (uploadBtn) uploadBtn.disabled = !product?.id || !imageUrl;
 }
 
 function renderImages(images = []) {
@@ -150,19 +152,19 @@ function renderImages(images = []) {
     return;
   }
 
-  for (const img of images.slice().sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))) {
+  for (const img of images.slice().sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))) {
     const row = document.createElement('div');
     row.className = 'd-flex align-items-center justify-content-between gap-3 p-2 rounded-4 border';
     row.style.borderColor = 'var(--border)';
     row.innerHTML = `
       <div class="d-flex align-items-center gap-3">
-        <img src="${escapeHtml(img.image_url)}" alt="${escapeHtml(img.alt_text || 'Imagem do produto')}" />
+        <img src="${escapeHtml(safeWebUrl(img.imageUrl, '../assets/images/shop/placeholder.svg'))}" alt="${escapeHtml(img.altText || 'Imagem do produto')}" />
         <div>
-          <div class="text-secondary small">${escapeHtml(img.alt_text || '(sem alt)')}</div>
+          <div class="text-secondary small">${escapeHtml(img.altText || '(sem alt)')}</div>
           <div class="d-flex align-items-center gap-2 mt-1">
             <div class="form-check">
               <input class="form-check-input" type="radio" name="coverRadio" data-admin-cover="${img.id}" ${
-                img.is_cover ? 'checked' : ''
+                img.isCover ? 'checked' : ''
               } />
               <label class="form-check-label">Capa</label>
             </div>
@@ -212,11 +214,10 @@ async function init() {
     setAlert(null);
     setLoading(true);
     try {
-      const categoriesRes = await listCategories({ includeInactive: true, limit: 200, offset: 0 });
-      categories = categoriesRes.items || [];
+      categories = await listCategories({ limit: 100 });
       if (categorySelect) fillCategorySelect(categorySelect, categories);
 
-      products = await listProducts({ includeInactive: true });
+      products = await listProducts({ limit: 100 });
       renderProductRows(products);
     } catch (err) {
       setAlert(err.message || 'Falha ao carregar dados.', 'danger');
@@ -226,7 +227,7 @@ async function init() {
   }
 
   async function loadProduct(id) {
-    currentProduct = await getProductById(id, { includeInactive: true });
+    currentProduct = await getProductById(id);
     setFormMode(form, { product: currentProduct });
     renderImages(currentProduct.images || []);
   }
@@ -254,7 +255,7 @@ async function init() {
     if (deleteImgId) {
       if (!confirm('Excluir esta imagem?')) return;
       try {
-        await deleteProductImage(deleteImgId);
+        await deleteProductImage(currentProduct.id, deleteImgId);
         await loadProduct(currentProduct.id);
         setAlert('Imagem excluída.', 'success');
       } catch (err) {
@@ -265,7 +266,7 @@ async function init() {
     const coverId = e.target.closest('[data-admin-cover]')?.getAttribute('data-admin-cover');
     if (coverId && currentProduct?.id) {
       try {
-        await updateProductImage(coverId, { is_cover: true });
+        await updateProductImage(currentProduct.id, coverId, { isCover: true });
         await loadProduct(currentProduct.id);
         setAlert('Capa atualizada.', 'success');
       } catch (err) {
@@ -286,7 +287,7 @@ async function init() {
     const name = document.querySelector('[name="cat_name"]')?.value?.trim();
     const slug = document.querySelector('[name="cat_slug"]')?.value?.trim();
     try {
-      const created = await createCategory({ name, slug, is_active: true });
+      const created = await createCategory({ name, slug, isActive: true });
       setAlert('Categoria criada.', 'success');
       document.querySelector('[data-admin-category-form]')?.classList.add('d-none');
       await loadAll();
@@ -301,20 +302,20 @@ async function init() {
     setAlert(null);
 
     const id = form.querySelector('[name="id"]').value.trim();
-    const category_id = form.querySelector('[name="category_id"]').value.trim() || null;
+    const categoryId = form.querySelector('[name="category_id"]').value.trim() || null;
     const name = form.querySelector('[name="name"]').value.trim();
     const slug = form.querySelector('[name="slug"]').value.trim();
     const description = form.querySelector('[name="description"]').value.trim() || null;
-    const price_cents = parseBrlToCents(form.querySelector('[name="price_brl"]').value);
-    const stock_qty = parseInt(form.querySelector('[name="stock_qty"]').value, 10);
-    const is_active = form.querySelector('[name="is_active"]').checked;
+    const priceCents = parseBrlToCents(form.querySelector('[name="price_brl"]').value);
+    const stockQty = parseInt(form.querySelector('[name="stock_qty"]').value, 10);
+    const isActive = form.querySelector('[name="is_active"]').checked;
 
-    if (price_cents === null) {
+    if (priceCents === null) {
       setAlert('Preço inválido.', 'warning');
       return;
     }
 
-    const payload = { category_id, name, slug, description, price_cents, stock_qty, is_active };
+    const payload = { categoryId, name, slug, description, priceCents, stockQty, isActive };
 
     const submitBtn = form.querySelector('[type="submit"]');
     if (submitBtn) submitBtn.disabled = true;
@@ -352,23 +353,23 @@ async function init() {
     const id = form?.querySelector('[name="id"]')?.value?.trim();
     if (!id) return;
 
-    const fileInput = document.getElementById('admin-image-file');
-    const file = fileInput?.files?.[0];
-    if (!file) {
-      setAlert('Selecione um arquivo de imagem.', 'warning');
+    const urlInput = document.getElementById('admin-image-url');
+    const imageUrl = urlInput?.value?.trim();
+    if (!imageUrl || !urlInput.checkValidity()) {
+      setAlert('Informe uma URL de imagem válida.', 'warning');
       return;
     }
 
-    const alt_text = document.getElementById('admin-image-alt')?.value?.trim() || null;
-    const is_cover = Boolean(document.getElementById('admin-image-cover')?.checked);
+    const altText = document.getElementById('admin-image-alt')?.value?.trim() || null;
+    const isCover = Boolean(document.getElementById('admin-image-cover')?.checked);
 
     try {
       setAlert(null);
       const btn = document.querySelector('[data-admin-upload-image]');
       if (btn) btn.disabled = true;
-      await uploadProductImage(id, file, { alt_text, is_cover });
+      await createProductImage(id, { imageUrl, altText, isCover, sortOrder: 0 });
       await loadProduct(id);
-      if (fileInput) fileInput.value = '';
+      if (urlInput) urlInput.value = '';
       const alt = document.getElementById('admin-image-alt');
       if (alt) alt.value = '';
       const cover = document.getElementById('admin-image-cover');
@@ -378,16 +379,15 @@ async function init() {
       setAlert(err.message || 'Falha ao enviar imagem.', 'danger');
     } finally {
       const btn = document.querySelector('[data-admin-upload-image]');
-      if (btn) btn.disabled = !id;
+      if (btn) btn.disabled = !id || !document.getElementById('admin-image-url')?.value?.trim();
     }
   });
 
-  // Enable upload button when a product is selected
-  document.getElementById('admin-image-file')?.addEventListener('change', () => {
+  document.getElementById('admin-image-url')?.addEventListener('input', () => {
     const btn = document.querySelector('[data-admin-upload-image]');
     if (!btn) return;
     const id = form?.querySelector('[name="id"]')?.value?.trim();
-    btn.disabled = !id;
+    btn.disabled = !id || !document.getElementById('admin-image-url')?.value?.trim();
   });
 
   await loadAll();
@@ -396,4 +396,3 @@ async function init() {
 }
 
 void init();
-

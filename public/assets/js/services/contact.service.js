@@ -1,31 +1,34 @@
-import { apiFetch } from '../core/api.js';
+import { apiClient, buildQuery } from '../core/api.js';
 
-function withQuery(path, params = {}) {
-  const search = new URLSearchParams();
-  for (const [key, value] of Object.entries(params)) {
-    if (value === undefined || value === null || value === '') continue;
-    search.set(key, String(value));
+export class ContactInterestsService {
+  create(input) {
+    return apiClient.post('/contact-interests', input);
   }
-  const suffix = search.toString();
-  return suffix ? `${path}?${suffix}` : path;
+
+  list({ status, page = 1, limit = 100 } = {}) {
+    return apiClient.get(`/contact-interests${buildQuery({
+      page,
+      limit,
+      status: status === 'all' ? undefined : status
+    })}`);
+  }
+
+  getById(id) {
+    return apiClient.get(`/contact-interests/${encodeURIComponent(id)}`);
+  }
+
+  updateStatus(id, status) {
+    return apiClient.patch(`/contact-interests/${encodeURIComponent(id)}`, { status });
+  }
+
+  delete(id) {
+    return apiClient.delete(`/contact-interests/${encodeURIComponent(id)}`);
+  }
 }
 
-export async function createContactInterest(payload) {
-  return apiFetch('/contact/interests', { method: 'POST', body: payload });
-}
-
-export async function listContactInterests({ status = 'all', search, limit = 50, offset = 0 } = {}) {
-  return apiFetch(withQuery('/contact/admin/interests', { status, search, limit, offset }));
-}
-
-export async function getContactInterestById(id) {
-  return apiFetch(`/contact/admin/interests/${encodeURIComponent(id)}`);
-}
-
-export async function updateContactInterestStatus(id, status) {
-  return apiFetch(`/contact/admin/interests/${encodeURIComponent(id)}/status`, { method: 'PATCH', body: { status } });
-}
-
-export async function deleteContactInterest(id) {
-  return apiFetch(`/contact/admin/interests/${encodeURIComponent(id)}`, { method: 'DELETE' });
-}
+export const contactInterestsService = new ContactInterestsService();
+export const createContactInterest = (input) => contactInterestsService.create(input);
+export const listContactInterests = (options) => contactInterestsService.list(options);
+export const getContactInterestById = (id) => contactInterestsService.getById(id);
+export const updateContactInterestStatus = (id, status) => contactInterestsService.updateStatus(id, status);
+export const deleteContactInterest = (id) => contactInterestsService.delete(id);

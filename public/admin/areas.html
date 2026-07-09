@@ -66,9 +66,9 @@
                 </div>
 
                 <div class="mb-3">
-                  <label class="form-label" for="area-cover-url">Cover URL (opcional)</label>
+                  <label class="form-label" for="area-cover-url">URL da capa (opcional)</label>
                   <input class="form-control bg-transparent text-body" id="area-cover-url" name="cover_image_url" type="url" placeholder="https://..." />
-                  <div class="text-secondary small mt-1">Preferir upload abaixo. URL manual é fallback.</div>
+                  <div class="text-secondary small mt-1">Use uma URL HTTPS de uma fonte confiável.</div>
                 </div>
 
                 <div class="form-check mb-3">
@@ -94,11 +94,7 @@
                   <img id="area-cover-preview" class="w-100 h-100 object-fit-cover" alt="Capa da área" />
                 </div>
 
-                <label class="form-label" for="area-cover-file">Upload de imagem</label>
-                <input class="form-control bg-transparent text-body" id="area-cover-file" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
-                <button class="btn btn-outline-secondary w-100 mt-2" type="button" data-admin-upload-cover disabled>
-                  <i class="bi bi-upload me-2" aria-hidden="true"></i>Enviar capa
-                </button>
+                <div class="text-secondary small">A capa é definida pela URL informada no formulário.</div>
               </section>
             </section>
           </div>
@@ -108,7 +104,7 @@
               <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
                 <div>
                   <div class="fw-semibold">Áreas</div>
-                  <div class="text-secondary small">Ativas e inativas</div>
+                  <div class="text-secondary small">Áreas ativas disponíveis na API</div>
                 </div>
                 <div class="d-flex gap-2">
                   <input class="form-control form-control-sm bg-transparent text-body" style="max-width: 220px" type="search" placeholder="Buscar..." data-admin-search />
@@ -148,4 +144,3 @@
     <script type="module" src="../assets/js/pages/admin/areas.js"></script>
   </body>
 </html>
-

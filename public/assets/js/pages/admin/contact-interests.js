@@ -65,7 +65,7 @@ function renderList(list) {
   if (empty) empty.classList.toggle('d-none', list.length !== 0);
 
   for (const it of list) {
-    const created = toDate(it.created_at);
+    const created = toDate(it.createdAt);
     const createdLabel = created ? fmtDateTime.format(created) : '';
     const badge = statusBadge(it.status);
 
@@ -91,7 +91,7 @@ function renderList(list) {
 
     card.innerHTML = `<div class="d-flex flex-column gap-2"><div class="d-flex justify-content-between align-items-start gap-2"><div><div class="fw-semibold">${escapeHtml(
       it.name,
-    )}</div><div class="text-secondary small">${escapeHtml(it.area_interest || '')}${createdLabel ? ` • ${escapeHtml(createdLabel)}` : ''}</div></div><span class="badge ${badge.cls}">${badge.label}</span></div><div class="text-secondary small">${escapeHtml(
+    )}</div><div class="text-secondary small">${escapeHtml(it.areaInterest || '')}${createdLabel ? ` • ${escapeHtml(createdLabel)}` : ''}</div></div><span class="badge ${badge.cls}">${badge.label}</span></div><div class="text-secondary small">${escapeHtml(
       it.whatsapp || '',
     )}${it.email ? ` • ${escapeHtml(it.email)}` : ''}</div>${preview ? `<div class="small" style="white-space: pre-wrap">${escapeHtml(preview)}</div>` : '<div class="text-secondary small">Sem mensagem.</div>'}<div class="d-flex flex-wrap gap-2">${actions.join(
       '',
@@ -131,8 +131,16 @@ async function load() {
   setLoading(true);
   setAlert(null);
   try {
-    const res = await listContactInterests({ status, search, limit: 100, offset: 0 });
-    items = Array.isArray(res?.items) ? res.items : [];
+    const res = await listContactInterests({ status, limit: 100 });
+    items = Array.isArray(res) ? res : [];
+    if (search) {
+      const term = search.toLocaleLowerCase('pt-BR');
+      items = items.filter((item) =>
+        `${item.name} ${item.email || ''} ${item.whatsapp} ${item.areaInterest}`
+          .toLocaleLowerCase('pt-BR')
+          .includes(term)
+      );
+    }
     renderList(items);
   } catch (err) {
     setAlert(err.message || 'Falha ao carregar interesses.', 'danger');

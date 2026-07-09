@@ -33,9 +33,22 @@ async function includeOnce(root = document) {
   const nodes = Array.from(root.querySelectorAll('[data-include]'));
   await Promise.all(
     nodes.map(async (node) => {
-      const url = node.getAttribute('data-include');
-      if (!url) return;
-      const res = await fetch(url, { cache: 'no-store' });
+      const source = node.getAttribute('data-include');
+      if (!source) return;
+
+      const url = new URL(source, window.location.origin);
+      if (url.origin !== window.location.origin) {
+        throw new Error('Includes externos não são permitidos.');
+      }
+
+      const res = await fetch(url, {
+        cache: 'no-store',
+        credentials: 'same-origin'
+      });
+      if (!res.ok) {
+        throw new Error(`Falha ao carregar componente (${res.status}).`);
+      }
+
       node.innerHTML = await res.text();
       node.removeAttribute('data-include');
     }),

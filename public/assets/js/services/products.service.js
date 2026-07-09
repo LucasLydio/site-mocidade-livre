@@ -1,69 +1,64 @@
-import { apiFetch } from '../core/api.js';
+import { apiClient, buildQuery } from '../core/api.js';
 
-function withQuery(path, params = {}) {
-  const search = new URLSearchParams();
-  for (const [key, value] of Object.entries(params)) {
-    if (value === undefined || value === null || value === '') continue;
-    search.set(key, String(value));
+export class ProductsService {
+  list({ categoryId, page = 1, limit = 100 } = {}) {
+    return apiClient.get(`/products${buildQuery({ categoryId, page, limit })}`);
   }
 
-  const suffix = search.toString();
-  return suffix ? `${path}?${suffix}` : path;
+  getById(id) {
+    return apiClient.get(`/products/${encodeURIComponent(id)}`);
+  }
+
+  async getBySlug(slug) {
+    const products = await this.list();
+    return products.find((product) => product.slug === slug) || null;
+  }
+
+  create(input) {
+    return apiClient.post('/products', input);
+  }
+
+  update(id, input) {
+    return apiClient.patch(`/products/${encodeURIComponent(id)}`, input);
+  }
+
+  delete(id) {
+    return apiClient.delete(`/products/${encodeURIComponent(id)}`);
+  }
+
+  listImages(productId) {
+    return apiClient.get(`/products/${encodeURIComponent(productId)}/images`);
+  }
+
+  createImage(productId, input) {
+    return apiClient.post(`/products/${encodeURIComponent(productId)}/images`, input);
+  }
+
+  updateImage(productId, imageId, input) {
+    return apiClient.patch(
+      `/products/${encodeURIComponent(productId)}/images/${encodeURIComponent(imageId)}`,
+      input
+    );
+  }
+
+  deleteImage(productId, imageId) {
+    return apiClient.delete(
+      `/products/${encodeURIComponent(productId)}/images/${encodeURIComponent(imageId)}`
+    );
+  }
+
 }
 
-export async function listProducts({ categoryId, includeInactive = false } = {}) {
-  return apiFetch(withQuery('/products', { categoryId, includeInactive: includeInactive ? 'true' : undefined }));
-}
-
-export async function getProductById(id, { includeInactive = false } = {}) {
-  return apiFetch(withQuery('/products', { id, includeInactive: includeInactive ? 'true' : undefined }));
-}
-
-export async function getProductBySlug(slug, { includeInactive = false } = {}) {
-  return apiFetch(withQuery('/products', { slug, includeInactive: includeInactive ? 'true' : undefined }));
-}
-
-export async function createProduct(payload) {
-  return apiFetch('/products', { method: 'POST', body: payload });
-}
-
-export async function updateProduct(id, payload) {
-  return apiFetch(withQuery('/products', { id }), { method: 'PUT', body: payload });
-}
-
-export async function deleteProduct(id) {
-  return apiFetch(withQuery('/products', { id }), { method: 'DELETE' });
-}
-
-export async function uploadProductImage(product_id, file, { alt_text, is_cover = false, sort_order = 0 } = {}) {
-  const base64 = await readFileAsDataUrl(file);
-  return apiFetch('/products/images', {
-    method: 'POST',
-    body: {
-      product_id,
-      filename: file.name,
-      content_type: file.type,
-      file_base64: base64,
-      alt_text,
-      is_cover,
-      sort_order
-    }
-  });
-}
-
-export async function updateProductImage(imageId, payload) {
-  return apiFetch(withQuery('/products/images', { id: imageId }), { method: 'PUT', body: payload });
-}
-
-export async function deleteProductImage(imageId) {
-  return apiFetch(withQuery('/products/images', { id: imageId }), { method: 'DELETE' });
-}
-
-function readFileAsDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error('Failed to read file.'));
-    reader.onload = () => resolve(String(reader.result || ''));
-    reader.readAsDataURL(file);
-  });
-}
+export const productsService = new ProductsService();
+export const listProducts = (options) => productsService.list(options);
+export const getProductById = (id) => productsService.getById(id);
+export const getProductBySlug = (slug) => productsService.getBySlug(slug);
+export const createProduct = (input) => productsService.create(input);
+export const updateProduct = (id, input) => productsService.update(id, input);
+export const deleteProduct = (id) => productsService.delete(id);
+export const createProductImage = (productId, input) =>
+  productsService.createImage(productId, input);
+export const updateProductImage = (productId, imageId, input) =>
+  productsService.updateImage(productId, imageId, input);
+export const deleteProductImage = (productId, imageId) =>
+  productsService.deleteImage(productId, imageId);

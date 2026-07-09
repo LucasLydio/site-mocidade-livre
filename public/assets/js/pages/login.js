@@ -1,9 +1,10 @@
 import { isAuthenticated } from '../core/session.js';
+import { safeLocalTarget } from '../core/router-helpers.js';
 import { login } from '../services/auth.service.js';
 
 function getNextTarget() {
   const next = new URLSearchParams(window.location.search).get('next');
-  return next && next.trim() ? next.trim() : 'profile.html';
+  return safeLocalTarget(next, 'profile.html');
 }
 
 function waitForLayoutReady() {
@@ -40,16 +41,24 @@ async function init() {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
 
     const email = form.querySelector('[name="email"]')?.value?.trim();
     const password = form.querySelector('[name="password"]')?.value || '';
+    const submitButton = form.querySelector('[type="submit"]');
 
     try {
+      if (submitButton) submitButton.disabled = true;
       await login({ email, password });
       showAlert(form, 'Login realizado com sucesso.', 'success');
       window.location.href = getNextTarget();
     } catch (err) {
       showAlert(form, err.message || 'Falha ao entrar.', 'danger');
+    } finally {
+      if (submitButton) submitButton.disabled = false;
     }
   });
 }

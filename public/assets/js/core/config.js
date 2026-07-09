@@ -1,4 +1,4 @@
-export const FUNCTIONS_BASE_URL = '/.netlify/functions';
+export const API_BASE_URL = '/api';
 
 export const CONTACT_CONFIG = {
   whatsappNumber: '',

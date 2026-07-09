@@ -1,68 +1,41 @@
-import { apiFetch } from '../core/api.js';
+import { apiClient, buildQuery } from '../core/api.js';
 
-function withQuery(path, params = {}) {
-  const search = new URLSearchParams();
-  for (const [key, value] of Object.entries(params)) {
-    if (value === undefined || value === null || value === '') continue;
-    search.set(key, String(value));
+export class AreasService {
+  list({ page = 1, limit = 100, search } = {}) {
+    return apiClient.get(`/areas${buildQuery({ page, limit })}`)
+      .then((areas) => search
+        ? areas.filter((area) => `${area.name} ${area.slug}`.toLocaleLowerCase('pt-BR').includes(search.toLocaleLowerCase('pt-BR')))
+        : areas);
   }
 
-  const suffix = search.toString();
-  return suffix ? `${path}?${suffix}` : path;
+  getById(id) {
+    return apiClient.get(`/areas/${encodeURIComponent(id)}`);
+  }
+
+  async getBySlug(slug) {
+    const areas = await this.list();
+    return areas.find((area) => area.slug === slug) || null;
+  }
+
+  create(input) {
+    return apiClient.post('/areas', input);
+  }
+
+  update(id, input) {
+    return apiClient.patch(`/areas/${encodeURIComponent(id)}`, input);
+  }
+
+  delete(id) {
+    return apiClient.delete(`/areas/${encodeURIComponent(id)}`);
+  }
 }
 
-export async function getActiveAreas() {
-  return apiFetch('/areas');
-}
-
-export async function getAreaBySlug(slug) {
-  return apiFetch(withQuery('/areas', { slug }));
-}
-
-export async function getAdminAreas({ search } = {}) {
-  return apiFetch(withQuery('/areas', { admin: true, search }));
-}
-
-export async function getAdminAreaById(id) {
-  return apiFetch(withQuery('/areas', { admin: true, id }));
-}
-
-export async function createArea(payload) {
-  return apiFetch('/areas?admin=true', { method: 'POST', body: payload });
-}
-
-export async function updateArea(id, payload) {
-  return apiFetch(withQuery('/areas', { admin: true, id }), { method: 'PUT', body: payload });
-}
-
-export async function toggleAreaActive(id, is_active) {
-  return apiFetch(withQuery('/areas', { admin: true, id, action: 'toggle-active' }), { method: 'PATCH', body: { is_active } });
-}
-
-export async function deleteArea(id) {
-  return apiFetch(withQuery('/areas', { admin: true, id }), { method: 'DELETE' });
-}
-
-export async function uploadAreaCover({ area_id, slug, file }) {
-  const base64 = await readFileAsDataUrl(file);
-  return apiFetch('/areas/images', {
-    method: 'POST',
-    body: {
-      area_id,
-      slug,
-      filename: file.name,
-      content_type: file.type,
-      file_base64: base64
-    }
-  });
-}
-
-function readFileAsDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error('Failed to read file.'));
-    reader.onload = () => resolve(String(reader.result || ''));
-    reader.readAsDataURL(file);
-  });
-}
-
+export const areasService = new AreasService();
+export const getActiveAreas = () => areasService.list();
+export const getAreaBySlug = (slug) => areasService.getBySlug(slug);
+export const getAdminAreas = ({ search } = {}) => areasService.list({ search });
+export const getAdminAreaById = (id) => areasService.getById(id);
+export const createArea = (input) => areasService.create(input);
+export const updateArea = (id, input) => areasService.update(id, input);
+export const toggleAreaActive = (id, isActive) => areasService.update(id, { isActive });
+export const deleteArea = (id) => areasService.delete(id);

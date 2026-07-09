@@ -146,7 +146,7 @@ async function init() {
     const name = form.querySelector('[name="name"]')?.value?.trim() || '';
     const whatsapp = form.querySelector('[name="whatsapp"]')?.value?.trim() || '';
     const email = form.querySelector('[name="email"]')?.value?.trim() || null;
-    const area_interest = form.querySelector('[name="area_interest"]')?.value?.trim() || '';
+    const areaInterest = form.querySelector('[name="area_interest"]')?.value?.trim() || '';
     const message = form.querySelector('[name="message"]')?.value?.trim() || null;
 
     if (!name) {
@@ -157,14 +157,14 @@ async function init() {
       setAlert('Informe seu WhatsApp.', 'warning');
       return;
     }
-    if (!area_interest) {
+    if (!areaInterest) {
       setAlert('Selecione uma área de interesse.', 'warning');
       return;
     }
 
     setLoading(true);
     try {
-      await createContactInterest({ name, whatsapp, email, area_interest, message });
+      await createContactInterest({ name, whatsapp, email, areaInterest, message });
       setSuccess('Interesse enviado! Em breve a gente te chama.');
       form.reset();
     } catch (err) {

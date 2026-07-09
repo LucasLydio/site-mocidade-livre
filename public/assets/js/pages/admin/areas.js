@@ -1,6 +1,7 @@
 import { clearSession, requireAuthRedirect } from '../../core/session.js';
 import { getMe as getUserMe } from '../../services/user.service.js';
-import { createArea, deleteArea, getAdminAreas, toggleAreaActive, updateArea, uploadAreaCover } from '../../services/areas.service.js';
+import { createArea, deleteArea, getAdminAreas, toggleAreaActive, updateArea } from '../../services/areas.service.js';
+import { setSafeImage } from '../../utils/dom.js';
 
 function waitForLayoutReady() {
   if (window.__mocidadeLayoutReady) return Promise.resolve();
@@ -50,7 +51,7 @@ function renderList(areas) {
   if (empty) empty.classList.toggle('d-none', areas.length !== 0);
 
   for (const a of areas) {
-    const status = a.is_active ? 'Ativa' : 'Inativa';
+    const status = a.isActive ? 'Ativa' : 'Inativa';
 
     if (tbody) {
       const tr = document.createElement('tr');
@@ -59,13 +60,13 @@ function renderList(areas) {
           <div class="fw-semibold">${escapeHtml(a.name)}</div>
           <div class="text-secondary small">${escapeHtml(a.slug)}</div>
         </td>
-        <td><span class="badge ${a.is_active ? 'text-bg-success' : 'text-bg-secondary'}">${status}</span></td>
+        <td><span class="badge ${a.isActive ? 'text-bg-success' : 'text-bg-secondary'}">${status}</span></td>
         <td class="text-end">
           <button class="btn btn-outline-secondary btn-sm" type="button" data-admin-edit="${a.id}">
             <i class="bi bi-pencil me-1" aria-hidden="true"></i>Editar
           </button>
-          <button class="btn btn-outline-secondary btn-sm" type="button" data-admin-toggle="${a.id}" data-admin-toggle-value="${a.is_active ? 'false' : 'true'}">
-            ${a.is_active ? 'Desativar' : 'Ativar'}
+          <button class="btn btn-outline-secondary btn-sm" type="button" data-admin-toggle="${a.id}" data-admin-toggle-value="${a.isActive ? 'false' : 'true'}">
+            ${a.isActive ? 'Desativar' : 'Ativar'}
           </button>
         </td>
       `;
@@ -82,12 +83,12 @@ function renderList(areas) {
           <div>
             <div class="fw-semibold">${escapeHtml(a.name)}</div>
             <div class="text-secondary small">${escapeHtml(a.slug)} </div>
-            <span class="badge ${a.is_active ? 'text-bg-success' : 'text-bg-secondary'}">${status}</span>
+            <span class="badge ${a.isActive ? 'text-bg-success' : 'text-bg-secondary'}">${status}</span>
           </div>
           <div class="d-flex gap-2">
             <button class="btn btn-outline-secondary btn-sm" type="button" data-admin-edit="${a.id}">Editar</button>
-            <button class="btn btn-outline-secondary btn-sm" type="button" data-admin-toggle="${a.id}" data-admin-toggle-value="${a.is_active ? 'false' : 'true'}">
-              ${a.is_active ? 'Desativar' : 'Ativar'}
+            <button class="btn btn-outline-secondary btn-sm" type="button" data-admin-toggle="${a.id}" data-admin-toggle-value="${a.isActive ? 'false' : 'true'}">
+              ${a.isActive ? 'Desativar' : 'Ativar'}
             </button>
           </div>
         </div>
@@ -102,17 +103,18 @@ function setForm(form, area) {
   form.querySelector('[name="name"]').value = area?.name || '';
   form.querySelector('[name="slug"]').value = area?.slug || '';
   form.querySelector('[name="description"]').value = area?.description || '';
-  form.querySelector('[name="cover_image_url"]').value = area?.cover_image_url || '';
-  form.querySelector('[name="is_active"]').checked = area ? Boolean(area.is_active) : true;
+  form.querySelector('[name="cover_image_url"]').value = area?.coverImageUrl || '';
+  form.querySelector('[name="is_active"]').checked = area ? Boolean(area.isActive) : true;
 
   const delBtn = document.querySelector('[data-admin-delete]');
   if (delBtn) delBtn.disabled = !area?.id;
 
-  const uploadBtn = document.querySelector('[data-admin-upload-cover]');
-  if (uploadBtn) uploadBtn.disabled = !area?.id;
-
   const preview = document.getElementById('area-cover-preview');
-  if (preview) preview.src = area?.cover_image_url || '../assets/images/areas/placeholder.svg';
+  setSafeImage(preview, {
+    src: area?.coverImageUrl,
+    fallback: '../assets/images/areas/placeholder.svg',
+    alt: area?.name || 'Capa da área'
+  });
 }
 
 async function init() {
@@ -195,9 +197,9 @@ async function init() {
     const toggleId = e.target.closest('[data-admin-toggle]')?.getAttribute('data-admin-toggle');
     if (toggleId) {
       const value = e.target.closest('[data-admin-toggle]')?.getAttribute('data-admin-toggle-value');
-      const is_active = value === 'true';
+      const isActive = value === 'true';
       try {
-        await toggleAreaActive(toggleId, is_active);
+        await toggleAreaActive(toggleId, isActive);
         setAlert('Status atualizado.', 'success');
         await load();
         if (current?.id === toggleId) {
@@ -218,10 +220,10 @@ async function init() {
     const name = form.querySelector('[name="name"]').value.trim();
     const slug = form.querySelector('[name="slug"]').value.trim();
     const description = form.querySelector('[name="description"]').value.trim() || null;
-    const cover_image_url = form.querySelector('[name="cover_image_url"]').value.trim() || null;
-    const is_active = Boolean(form.querySelector('[name="is_active"]').checked);
+    const coverImageUrl = form.querySelector('[name="cover_image_url"]').value.trim() || null;
+    const isActive = Boolean(form.querySelector('[name="is_active"]').checked);
 
-    const payload = { name, slug, description, cover_image_url, is_active };
+    const payload = { name, slug, description, coverImageUrl, isActive };
 
     const submitBtn = form.querySelector('[type="submit"]');
     if (submitBtn) submitBtn.disabled = true;
@@ -255,49 +257,8 @@ async function init() {
     }
   });
 
-  document.querySelector('[data-admin-upload-cover]')?.addEventListener('click', async () => {
-    const id = form?.querySelector('[name="id"]')?.value?.trim();
-    const slug = form?.querySelector('[name="slug"]')?.value?.trim();
-    if (!id || !slug) return;
-
-    const file = document.getElementById('area-cover-file')?.files?.[0];
-    if (!file) {
-      setAlert('Selecione uma imagem.', 'warning');
-      return;
-    }
-
-    try {
-      setAlert(null);
-      const btn = document.querySelector('[data-admin-upload-cover]');
-      if (btn) btn.disabled = true;
-      const res = await uploadAreaCover({ area_id: id, slug, file });
-      setAlert('Capa enviada.', 'success');
-      const updated = res.area || null;
-      if (updated) {
-        current = updated;
-        setForm(form, current);
-      } else {
-        await load();
-      }
-      document.getElementById('area-cover-file').value = '';
-    } catch (err) {
-      setAlert(err.message || 'Falha ao enviar capa.', 'danger');
-    } finally {
-      const btn = document.querySelector('[data-admin-upload-cover]');
-      if (btn) btn.disabled = !id;
-    }
-  });
-
-  document.getElementById('area-cover-file')?.addEventListener('change', () => {
-    const btn = document.querySelector('[data-admin-upload-cover]');
-    if (!btn) return;
-    const id = form?.querySelector('[name="id"]')?.value?.trim();
-    btn.disabled = !id;
-  });
-
   setForm(form, null);
   await load();
 }
 
 void init();
-

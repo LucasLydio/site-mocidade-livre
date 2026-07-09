@@ -1,30 +1,29 @@
-import { apiFetch } from '../core/api.js';
+import { apiClient, buildQuery } from '../core/api.js';
 
-export async function listCategories({ is_active = true, limit = 100, offset = 0, includeInactive = false } = {}) {
-  const params = new URLSearchParams();
-  params.set('limit', String(limit));
-  params.set('offset', String(offset));
-
-  if (includeInactive) {
-    params.set('includeInactive', 'true');
-  } else if (is_active !== undefined) {
-    params.set('is_active', String(Boolean(is_active)));
+export class CategoriesService {
+  list({ page = 1, limit = 100 } = {}) {
+    return apiClient.get(`/categories${buildQuery({ page, limit })}`);
   }
 
-  return apiFetch(`/category?${params.toString()}`);
+  getById(id) {
+    return apiClient.get(`/categories/${encodeURIComponent(id)}`);
+  }
+
+  create(input) {
+    return apiClient.post('/categories', input);
+  }
+
+  update(id, input) {
+    return apiClient.patch(`/categories/${encodeURIComponent(id)}`, input);
+  }
+
+  delete(id) {
+    return apiClient.delete(`/categories/${encodeURIComponent(id)}`);
+  }
 }
 
-export async function createCategory(payload) {
-  return apiFetch('/category', { method: 'POST', body: payload });
-}
-
-export async function updateCategory(id, payload) {
-  const params = new URLSearchParams({ id });
-  return apiFetch(`/category?${params.toString()}`, { method: 'PUT', body: payload });
-}
-
-export async function deleteCategory(id) {
-  const params = new URLSearchParams({ id });
-  return apiFetch(`/category?${params.toString()}`, { method: 'DELETE' });
-}
-
+export const categoriesService = new CategoriesService();
+export const listCategories = (options) => categoriesService.list(options);
+export const createCategory = (input) => categoriesService.create(input);
+export const updateCategory = (id, input) => categoriesService.update(id, input);
+export const deleteCategory = (id) => categoriesService.delete(id);

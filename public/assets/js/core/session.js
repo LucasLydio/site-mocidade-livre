@@ -1,16 +1,11 @@
-import { getJson, getString, remove, setJson, setString } from './storage.js';
+import { getJson, remove, setJson } from './storage.js';
 
 const TOKEN_KEY = 'mocidade_token';
 const USER_KEY = 'mocidade_user';
 
 export function setSession({ token, user }) {
-  if (token !== undefined) {
-    if (token === null || token === '') {
-      remove(TOKEN_KEY);
-    } else {
-      setString(TOKEN_KEY, token);
-    }
-  }
+  // Authentication is maintained by the backend's HttpOnly cookie.
+  remove(TOKEN_KEY);
 
   if (user !== undefined) {
     if (user === null) {
@@ -27,7 +22,7 @@ export function clearSession() {
 }
 
 export function getToken() {
-  return getString(TOKEN_KEY, null);
+  return null;
 }
 
 export function getUser() {
@@ -35,7 +30,7 @@ export function getUser() {
 }
 
 export function isAuthenticated() {
-  return Boolean(getToken());
+  return Boolean(getUser());
 }
 
 export function requireAuthRedirect({ redirectTo = 'login.html', next } = {}) {

@@ -1,4 +1,5 @@
 import { getPublishedEventById } from '../services/events.service.js';
+import { setSafeImage } from '../utils/dom.js';
 
 function waitForLayoutReady() {
   if (window.__mocidadeLayoutReady) return Promise.resolve();
@@ -49,8 +50,11 @@ function setAlert(message, type = 'danger') {
 function setCover(url, title) {
   const img = document.getElementById('event-cover');
   if (!img) return;
-  img.src = url || 'assets/images/areas/placeholder.svg';
-  img.alt = title || 'Capa do evento';
+  setSafeImage(img, {
+    src: url,
+    fallback: 'assets/images/areas/placeholder.svg',
+    alt: title || 'Capa do evento'
+  });
 }
 
 async function init() {
@@ -71,15 +75,15 @@ async function init() {
     setText('[data-event-title]', ev.title || 'Evento');
     setText('[data-event-summary]', ev.summary || '');
     setText('[data-event-description]', ev.description || '');
-    setText('[data-event-datetime]', formatRange(ev.starts_at, ev.ends_at));
+    setText('[data-event-datetime]', formatRange(ev.startsAt, ev.endsAt));
 
-    const loc = String(ev.location_name || '').trim();
-    const addr = String(ev.location_address || '').trim();
+    const loc = String(ev.locationName || '').trim();
+    const addr = String(ev.locationAddress || '').trim();
     document.querySelector('[data-event-location-row]')?.classList.toggle('d-none', !loc && !addr);
     setText('[data-event-location]', loc || 'Local a confirmar');
     setText('[data-event-address]', addr || '');
 
-    setCover(ev.cover_image_url, ev.title);
+    setCover(ev.coverImageUrl, ev.title);
 
     document.querySelector('[data-event-loading]')?.classList.add('d-none');
     document.querySelector('[data-event-content]')?.classList.remove('d-none');
@@ -90,4 +94,3 @@ async function init() {
 }
 
 void init();
-

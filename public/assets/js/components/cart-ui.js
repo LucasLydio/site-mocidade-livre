@@ -18,7 +18,7 @@ function clearCartId() {
 }
 
 function sumTotalCents(items = []) {
-  return items.reduce((sum, item) => sum + item.unit_price_cents * item.quantity, 0);
+  return items.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);
 }
 
 function renderCart(root, cart) {
@@ -36,8 +36,8 @@ function renderCart(root, cart) {
     row.className = 'cart-item d-flex align-items-center justify-content-between gap-3 py-2 border-bottom';
     row.innerHTML = `
       <div class="flex-grow-1">
-        <div class="fw-semibold">${escapeHtml(item.product_name)}</div>
-        <div class="text-secondary small">${formatBRLFromCents(item.unit_price_cents)} • <span data-item-subtotal></span></div>
+        <div class="fw-semibold">${escapeHtml(item.productName)}</div>
+        <div class="text-secondary small">${formatBRLFromCents(item.unitPriceCents)} • <span data-item-subtotal></span></div>
       </div>
       <div class="d-flex align-items-center gap-2">
         <button class="btn btn-outline-secondary btn-sm" type="button" data-cart-dec="${item.id}" aria-label="Diminuir">-</button>
@@ -47,7 +47,7 @@ function renderCart(root, cart) {
       </div>
     `;
 
-    row.querySelector('[data-item-subtotal]')?.append(formatBRLFromCents(item.unit_price_cents * item.quantity));
+    row.querySelector('[data-item-subtotal]')?.append(formatBRLFromCents(item.unitPriceCents * item.quantity));
     itemsRoot?.appendChild(row);
   }
 
@@ -123,7 +123,7 @@ export async function initCartUi({ root = document } = {}) {
   async function addProduct(productId, quantity = 1) {
     setAlert(panel, null);
     await ensureCart();
-    await addCartItem({ cart_id: cartId, product_id: productId, quantity });
+    await addCartItem(cartId, { productId, quantity });
     await refresh();
   }
 
@@ -136,20 +136,20 @@ export async function initCartUi({ root = document } = {}) {
       if (inc) {
         const item = cart?.items?.find((i) => i.id === inc);
         if (!item) return;
-        await updateCartItem(inc, { quantity: item.quantity + 1 });
+        await updateCartItem(cartId, inc, { quantity: item.quantity + 1 });
         await refresh();
       } else if (dec) {
         const item = cart?.items?.find((i) => i.id === dec);
         if (!item) return;
         const next = item.quantity - 1;
         if (next <= 0) {
-          await removeCartItem(dec);
+          await removeCartItem(cartId, dec);
         } else {
-          await updateCartItem(dec, { quantity: next });
+          await updateCartItem(cartId, dec, { quantity: next });
         }
         await refresh();
       } else if (removeId) {
-        await removeCartItem(removeId);
+        await removeCartItem(cartId, removeId);
         await refresh();
       }
     } catch (err) {
@@ -170,7 +170,7 @@ export async function initCartUi({ root = document } = {}) {
         return;
       }
 
-      await updateCartItem(id, { quantity: qty });
+      await updateCartItem(cartId, id, { quantity: qty });
       await refresh();
     } catch (err) {
       setAlert(panel, err.message || 'Falha ao atualizar carrinho.', 'danger');
@@ -185,21 +185,23 @@ export async function initCartUi({ root = document } = {}) {
 
     try {
       setAlert(panel, null);
+      if (!name || !whatsapp) {
+        setAlert(panel, 'Informe seu nome e WhatsApp para enviar o pedido.', 'warning');
+        return;
+      }
       await ensureCart();
 
-      const result = await checkoutWhatsapp({
-        cart_id: cartId,
-        customer_name: name,
-        customer_whatsapp: whatsapp,
+      await checkoutWhatsapp(cartId, {
+        customerName: name,
+        customerWhatsapp: whatsapp,
         notes
       });
 
-      if (result?.whatsapp_url) {
-        window.open(result.whatsapp_url, '_blank', 'noopener,noreferrer');
-      }
-
-      await refresh();
-      setAlert(panel, 'Pedido pronto! Abrimos o WhatsApp em outra aba.', 'success');
+      clearCartId();
+      cartId = null;
+      cart = null;
+      await ensureCart();
+      setAlert(panel, 'Pedido enviado com sucesso.', 'success');
     } catch (err) {
       setAlert(panel, err.message || 'Falha no checkout.', 'danger');
     }

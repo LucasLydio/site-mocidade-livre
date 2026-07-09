@@ -1,6 +1,7 @@
 import { clearSession, requireAuthRedirect } from '../../core/session.js';
 import { getMe as getUserMe } from '../../services/user.service.js';
-import { createEvent, deleteEvent, listAdminEvents, toggleEventPublished, updateEvent, uploadEventCover } from '../../services/events.service.js';
+import { createEvent, deleteEvent, listAdminEvents, toggleEventPublished, updateEvent } from '../../services/events.service.js';
+import { setSafeImage } from '../../utils/dom.js';
 
 function waitForLayoutReady() { return window.__mocidadeLayoutReady ? Promise.resolve() : new Promise((resolve) => document.addEventListener('mocidade:layout-ready', resolve, { once: true })); }
 function setAlert(message, type = 'danger') { const el = document.getElementById('admin-alert'); if (!el) return; if (!message) { el.className = 'alert d-none'; el.textContent = ''; return; } el.className = `alert alert-${type}`; el.textContent = message; }
@@ -15,7 +16,13 @@ function toDate(value) { const d = new Date(String(value || '')); return Number.
 
 const PLACEHOLDER_COVER = '../assets/images/areas/placeholder.svg';
 
-function setCoverPreview(url, title) { const img = document.getElementById('event-cover-preview'); if (!img) return; img.src = url || PLACEHOLDER_COVER; img.alt = title || 'Capa do evento'; }
+function setCoverPreview(url, title) {
+  setSafeImage(document.getElementById('event-cover-preview'), {
+    src: url,
+    fallback: PLACEHOLDER_COVER,
+    alt: title || 'Capa do evento'
+  });
+}
 
 function pad2(n) {
   return String(n).padStart(2, '0');
@@ -44,20 +51,17 @@ function setForm(form, ev) {
   form.querySelector('[name="title"]').value = ev?.title || '';
   form.querySelector('[name="summary"]').value = ev?.summary || '';
   form.querySelector('[name="description"]').value = ev?.description || '';
-  form.querySelector('[name="starts_at"]').value = toLocalDatetimeValue(ev?.starts_at);
-  form.querySelector('[name="ends_at"]').value = toLocalDatetimeValue(ev?.ends_at);
-  form.querySelector('[name="location_name"]').value = ev?.location_name || '';
-  form.querySelector('[name="location_address"]').value = ev?.location_address || '';
-  form.querySelector('[name="cover_image_url"]').value = ev?.cover_image_url || '';
-  form.querySelector('[name="is_published"]').checked = Boolean(ev?.is_published);
+  form.querySelector('[name="starts_at"]').value = toLocalDatetimeValue(ev?.startsAt);
+  form.querySelector('[name="ends_at"]').value = toLocalDatetimeValue(ev?.endsAt);
+  form.querySelector('[name="location_name"]').value = ev?.locationName || '';
+  form.querySelector('[name="location_address"]').value = ev?.locationAddress || '';
+  form.querySelector('[name="cover_image_url"]').value = ev?.coverImageUrl || '';
+  form.querySelector('[name="is_published"]').checked = Boolean(ev?.isPublished);
 
-  setCoverPreview(ev?.cover_image_url, ev?.title);
+  setCoverPreview(ev?.coverImageUrl, ev?.title);
 
   document.querySelector('[data-admin-delete]')?.toggleAttribute('disabled', !ev?.id);
 
-  const uploadBtn = document.querySelector('[data-admin-upload-cover]');
-  const hasFile = Boolean(document.getElementById('event-cover-file')?.files?.[0]);
-  if (uploadBtn) uploadBtn.disabled = !ev?.id || !hasFile;
 }
 
 function renderList(items) {
@@ -67,13 +71,13 @@ function renderList(items) {
   if (empty) empty.classList.toggle('d-none', items.length !== 0);
 
   for (const ev of items) {
-    const start = toDate(ev.starts_at);
+    const start = toDate(ev.startsAt);
     const dateLabel = start ? fmtDateTime.format(start) : '';
 
-    const statusLabel = ev.is_published ? 'Publicado' : 'Rascunho';
-    const badgeClass = ev.is_published ? 'text-bg-success' : 'text-bg-secondary';
-    const toggleLabel = ev.is_published ? 'Despublicar' : 'Publicar';
-    const nextValue = ev.is_published ? 'false' : 'true';
+    const statusLabel = ev.isPublished ? 'Publicado' : 'Rascunho';
+    const badgeClass = ev.isPublished ? 'text-bg-success' : 'text-bg-secondary';
+    const toggleLabel = ev.isPublished ? 'Despublicar' : 'Publicar';
+    const nextValue = ev.isPublished ? 'false' : 'true';
 
     const card = document.createElement('div');
     card.className = 'p-3 rounded-4 border';
@@ -81,10 +85,10 @@ function renderList(items) {
     card.style.background = 'var(--surface)';
     const summaryHtml = ev.summary ? `<div class="text-secondary small">${escapeHtml(ev.summary)}</div>` : '<div class="text-secondary small">Sem resumo.</div>';
     const viewHref = `../event-details.html?id=${encodeURIComponent(ev.id)}`;
-    const viewAttrs = ev.is_published ? '' : 'disabled tabindex="-1" aria-disabled="true"';
+    const viewAttrs = ev.isPublished ? '' : 'disabled tabindex="-1" aria-disabled="true"';
     card.innerHTML = `<div class="d-flex flex-column gap-2"><div class="d-flex justify-content-between align-items-start gap-2"><div><div class="fw-semibold">${escapeHtml(ev.title)}</div><div class="text-secondary small">${escapeHtml(
       dateLabel,
-    )}</div></div><span class="badge ${badgeClass}">${statusLabel}</span></div>${summaryHtml}<div class="d-flex flex-wrap gap-2"><button class="btn btn-outline-secondary btn-sm" type="button" data-admin-edit="${escapeHtml(ev.id)}"><i class="bi bi-pencil me-1" aria-hidden="true"></i>Editar</button><button class="btn btn-outline-secondary btn-sm" type="button" data-admin-toggle-published="${escapeHtml(ev.id)}" data-admin-toggle-published-value="${nextValue}">${toggleLabel}</button><a class="btn btn-outline-secondary btn-sm ${ev.is_published ? '' : 'disabled'}" href="${viewHref}" ${viewAttrs}><i class="bi bi-eye me-1" aria-hidden="true"></i>Ver</a></div></div>`;
+    )}</div></div><span class="badge ${badgeClass}">${statusLabel}</span></div>${summaryHtml}<div class="d-flex flex-wrap gap-2"><button class="btn btn-outline-secondary btn-sm" type="button" data-admin-edit="${escapeHtml(ev.id)}"><i class="bi bi-pencil me-1" aria-hidden="true"></i>Editar</button><button class="btn btn-outline-secondary btn-sm" type="button" data-admin-toggle-published="${escapeHtml(ev.id)}" data-admin-toggle-published-value="${nextValue}">${toggleLabel}</button><a class="btn btn-outline-secondary btn-sm ${ev.isPublished ? '' : 'disabled'}" href="${viewHref}" ${viewAttrs}><i class="bi bi-eye me-1" aria-hidden="true"></i>Ver</a></div></div>`;
 
     root?.appendChild(card);
   }
@@ -118,9 +122,9 @@ async function load() {
   setLoading(true);
   setAlert(null);
   try {
-    const result = await listAdminEvents({ search, limit: 200, offset: 0, status: 'all' });
-    events = Array.isArray(result?.items) ? result.items : [];
-    events.sort((a, b) => (toDate(a.starts_at) || 0) - (toDate(b.starts_at) || 0));
+    const result = await listAdminEvents({ search, limit: 100 });
+    events = Array.isArray(result) ? result : [];
+    events.sort((a, b) => (toDate(a.startsAt) || 0) - (toDate(b.startsAt) || 0));
     renderList(events);
   } catch (err) {
     setAlert(err.message || 'Falha ao carregar eventos.', 'danger');
@@ -137,7 +141,6 @@ async function init() {
 
   const form = document.getElementById('admin-event-form');
   const searchInput = document.querySelector('[data-admin-search]');
-  const fileInput = document.getElementById('event-cover-file');
 
   document.querySelector('[data-admin-refresh]')?.addEventListener('click', load);
   searchInput?.addEventListener('keydown', (e) => {
@@ -151,7 +154,6 @@ async function init() {
     current = null;
     setForm(form, null);
     setAlert(null);
-    if (fileInput) fileInput.value = '';
   });
 
   document.addEventListener('click', async (e) => {
@@ -166,9 +168,9 @@ async function init() {
     const toggleId = e.target.closest('[data-admin-toggle-published]')?.getAttribute('data-admin-toggle-published');
     if (toggleId) {
       const value = e.target.closest('[data-admin-toggle-published]')?.getAttribute('data-admin-toggle-published-value');
-      const is_published = value === 'true';
+      const isPublished = value === 'true';
       try {
-        await toggleEventPublished(toggleId, is_published);
+        await toggleEventPublished(toggleId, isPublished);
         setAlert('Status atualizado.', 'success');
         await load();
         if (current?.id === toggleId) {
@@ -189,19 +191,19 @@ async function init() {
     const title = form.querySelector('[name="title"]').value.trim();
     const summary = form.querySelector('[name="summary"]').value.trim() || null;
     const description = form.querySelector('[name="description"]').value.trim() || null;
-    const starts_at = fromLocalDatetimeValue(form.querySelector('[name="starts_at"]').value);
-    const ends_at = fromLocalDatetimeValue(form.querySelector('[name="ends_at"]').value);
-    const location_name = form.querySelector('[name="location_name"]').value.trim() || null;
-    const location_address = form.querySelector('[name="location_address"]').value.trim() || null;
-    const cover_image_url = form.querySelector('[name="cover_image_url"]').value.trim() || null;
-    const is_published = Boolean(form.querySelector('[name="is_published"]').checked);
+    const startsAt = fromLocalDatetimeValue(form.querySelector('[name="starts_at"]').value);
+    const endsAt = fromLocalDatetimeValue(form.querySelector('[name="ends_at"]').value);
+    const locationName = form.querySelector('[name="location_name"]').value.trim() || null;
+    const locationAddress = form.querySelector('[name="location_address"]').value.trim() || null;
+    const coverImageUrl = form.querySelector('[name="cover_image_url"]').value.trim() || null;
+    const isPublished = Boolean(form.querySelector('[name="is_published"]').checked);
 
     if (!title) {
       setAlert('Título é obrigatório.', 'warning');
       return;
     }
 
-    if (!starts_at) {
+    if (!startsAt) {
       setAlert('Data/hora de início é obrigatória.', 'warning');
       return;
     }
@@ -210,12 +212,12 @@ async function init() {
       title,
       summary,
       description,
-      starts_at,
-      ends_at,
-      location_name,
-      location_address,
-      cover_image_url,
-      is_published,
+      startsAt,
+      endsAt,
+      locationName,
+      locationAddress,
+      coverImageUrl,
+      isPublished,
     };
 
     const submitBtn = form.querySelector('[type="submit"]');
@@ -232,46 +234,6 @@ async function init() {
     } finally {
       if (submitBtn) submitBtn.disabled = false;
     }
-  });
-
-  document.querySelector('[data-admin-upload-cover]')?.addEventListener('click', async () => {
-    const event_id = form?.querySelector('[name="id"]')?.value?.trim();
-    if (!event_id) return;
-
-    const file = fileInput?.files?.[0];
-    if (!file) {
-      setAlert('Selecione uma imagem.', 'warning');
-      return;
-    }
-
-    try {
-      setAlert(null);
-      const btn = document.querySelector('[data-admin-upload-cover]');
-      if (btn) btn.disabled = true;
-      const res = await uploadEventCover({ event_id, file });
-      setAlert('Capa enviada.', 'success');
-      const updated = res.event || null;
-      if (updated) {
-        current = updated;
-        setForm(form, current);
-      } else {
-        await load();
-      }
-      if (fileInput) fileInput.value = '';
-    } catch (err) {
-      setAlert(err.message || 'Falha ao enviar capa.', 'danger');
-    } finally {
-      const btn = document.querySelector('[data-admin-upload-cover]');
-      const id = form?.querySelector('[name="id"]')?.value?.trim();
-      if (btn) btn.disabled = !id;
-    }
-  });
-
-  fileInput?.addEventListener('change', () => {
-    const btn = document.querySelector('[data-admin-upload-cover]');
-    if (!btn) return;
-    const id = form?.querySelector('[name="id"]')?.value?.trim();
-    btn.disabled = !id || !fileInput?.files?.[0];
   });
 
   document.querySelector('[data-admin-delete]')?.addEventListener('click', async () => {

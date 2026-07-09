@@ -117,7 +117,6 @@ model ProductImage {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   productId   String   @map("product_id") @db.Uuid
   imageUrl    String   @map("image_url")
-  storagePath String?  @map("storage_path")
   altText     String?  @map("alt_text")
   isCover     Boolean  @default(false) @map("is_cover")
   sortOrder   Int      @default(0) @map("sort_order")
