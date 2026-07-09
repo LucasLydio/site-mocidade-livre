@@ -64,10 +64,10 @@ export async function includeAll() {
 }
 
 export function initLayout() {
-  setTheme(getPreferredTheme());
+  // setTheme(getPreferredTheme());
 
-  document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
-  document.getElementById('theme-toggle-mobile')?.addEventListener('click', toggleTheme);
+  // document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
+  // document.getElementById('theme-toggle-mobile')?.addEventListener('click', toggleTheme);
 
   const year = document.getElementById('year');
   if (year) year.textContent = String(new Date().getFullYear());
