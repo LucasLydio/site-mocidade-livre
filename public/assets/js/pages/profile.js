@@ -42,8 +42,14 @@ function fillForm(user) {
   const emailInput = form.querySelector('[name="email"]');
   if (emailInput) emailInput.value = user?.email || '';
 
-  const roleInput = form.querySelector('[name="role"]');
-  if (roleInput) roleInput.value = user?.role || '';
+  const currentPasswordInput = form.querySelector('[name="current_password"]');
+  if (currentPasswordInput) currentPasswordInput.value = '';
+
+  const passwordInput = form.querySelector('[name="password"]');
+  if (passwordInput) passwordInput.value = '';
+
+  const passwordConfirmInput = form.querySelector('[name="password_confirm"]');
+  if (passwordConfirmInput) passwordConfirmInput.value = '';
 }
 
 async function loadProfile() {
@@ -84,13 +90,44 @@ async function init() {
     setAlert(null);
 
     const name = form.querySelector('[name="name"]')?.value?.trim();
+    const email = form.querySelector('[name="email"]')?.value?.trim();
     const telephone = form.querySelector('[name="telephone"]')?.value?.trim();
+    const currentPassword = form.querySelector('[name="current_password"]')?.value || '';
+    const password = form.querySelector('[name="password"]')?.value || '';
+    const passwordConfirm = form.querySelector('[name="password_confirm"]')?.value || '';
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    if (password || passwordConfirm) {
+      if (!currentPassword) {
+        setAlert('Informe sua senha atual para trocar a senha.', 'warning');
+        return;
+      }
+
+      if (password.length < 8) {
+        setAlert('A nova senha precisa ter pelo menos 8 caracteres.', 'warning');
+        return;
+      }
+
+      if (password !== passwordConfirm) {
+        setAlert('As senhas não conferem.', 'warning');
+        return;
+      }
+    }
 
     const submitBtn = form.querySelector('[type="submit"]');
     if (submitBtn) submitBtn.disabled = true;
 
     try {
-      const user = await updateMe({ name, telephone });
+      const user = await updateMe({
+        name,
+        email,
+        telephone,
+        ...(password ? { currentPassword, password } : {})
+      });
       setSession({ token: undefined, user });
       setAlert('Perfil atualizado com sucesso.', 'success');
       fillForm(user);

@@ -33,7 +33,13 @@ export const usersController = {
       throw new AppError(401, "Voce precisa estar autenticado para continuar.");
     }
 
-    return successResponse(request.user);
+    const user = await usersService.getById(request.user.id);
+
+    if (!user) {
+      throw new AppError(404, "Usuario nao encontrado.");
+    }
+
+    return successResponse(user);
   },
 
   async create(request: HttpRequest): Promise<HttpResponse> {
@@ -46,11 +52,15 @@ export const usersController = {
 
   async update(request: HttpRequest): Promise<HttpResponse> {
     const { id } = validateParams(idParamSchema, request.params);
-    requireSelfOrPermission(request, id, "users.update");
+    requireSelfOrPermission(request, id, "users.update.me");
     const input = validateBody(updateUserSchema, request.body);
 
     if ((input.role || input.isActive !== undefined) && request.user?.role !== "admin") {
       throw new AppError(403, "Voce nao possui acesso para alterar papeis.");
+    }
+
+    if (input.password && request.user?.id === id && !input.currentPassword) {
+      throw new AppError(400, "Informe sua senha atual para alterar a senha.");
     }
 
     const user = await usersService.update(id, input);

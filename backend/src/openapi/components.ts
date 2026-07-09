@@ -129,6 +129,10 @@ export const openApiComponents = {
       properties: { login: { type: "string" }, email: { type: "string", format: "email" }, password: { type: "string", format: "password" } },
       anyOf: [{ required: ["login"] }, { required: ["email"] }]
     },
+    RecoverPasswordRequest: {
+      type: "object", required: ["email"],
+      properties: { email: { type: "string", format: "email" } }
+    },
     RegisterRequest: {
       type: "object", required: ["name", "email", "password"],
       properties: {
@@ -149,6 +153,7 @@ export const openApiComponents = {
       properties: {
         name: { type: "string" }, email: { type: "string", format: "email" }, telephone: nullableString,
         role: { $ref: "#/components/schemas/UserRole" }, isActive: { type: "boolean" },
+        currentPassword: { type: "string", format: "password", description: "Required when the authenticated user changes their own password." },
         password: { type: "string", format: "password", minLength: 8 }
       }
     },
@@ -221,6 +226,10 @@ export const openApiComponents = {
     LogoutResponse: {
       type: "object", required: ["success", "data"],
       properties: { success: { const: true }, data: { type: "object", properties: { loggedOut: { type: "boolean" } } } }
+    },
+    MessageResponse: {
+      type: "object", required: ["success", "data"],
+      properties: { success: { const: true }, data: { type: "object", required: ["message"], properties: { message: { type: "string" } } } }
     },
     HealthResponse: {
       type: "object", required: ["success", "data"],

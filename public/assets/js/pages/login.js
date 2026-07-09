@@ -1,6 +1,6 @@
 import { isAuthenticated } from '../core/session.js';
 import { safeLocalTarget } from '../core/router-helpers.js';
-import { login } from '../services/auth.service.js';
+import { login, recoverPassword } from '../services/auth.service.js';
 
 function getNextTarget() {
   const next = new URLSearchParams(window.location.search).get('next');
@@ -37,6 +37,7 @@ async function init() {
   }
 
   const form = document.getElementById('login-form');
+  const recoverForm = document.getElementById('recover-password-form');
   if (!form) return;
 
   form.addEventListener('submit', async (e) => {
@@ -57,6 +58,27 @@ async function init() {
       window.location.href = getNextTarget();
     } catch (err) {
       showAlert(form, err.message || 'Falha ao entrar.', 'danger');
+    } finally {
+      if (submitButton) submitButton.disabled = false;
+    }
+  });
+
+  recoverForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!recoverForm.checkValidity()) {
+      recoverForm.reportValidity();
+      return;
+    }
+
+    const email = recoverForm.querySelector('[name="email"]')?.value?.trim();
+    const submitButton = recoverForm.querySelector('[type="submit"]');
+
+    try {
+      if (submitButton) submitButton.disabled = true;
+      const result = await recoverPassword({ email });
+      showAlert(recoverForm, result.message || 'Se este email estiver cadastrado, enviaremos uma senha temporária em instantes.', 'success');
+    } catch (err) {
+      showAlert(recoverForm, err.message || 'Falha ao solicitar recuperação de senha.', 'danger');
     } finally {
       if (submitButton) submitButton.disabled = false;
     }

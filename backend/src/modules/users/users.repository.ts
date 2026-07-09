@@ -70,6 +70,12 @@ export const usersRepository = {
     return user ? toAuthUser(user) : null;
   },
 
+  async findAuthById(id: string): Promise<AuthUser | null> {
+    const user = await prisma.user.findUnique({ where: { id } });
+
+    return user ? toAuthUser(user) : null;
+  },
+
   async list(page: number, limit: number): Promise<{ users: PublicUser[]; total: number }> {
     const skip = (page - 1) * limit;
 

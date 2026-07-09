@@ -5,14 +5,15 @@ type SendEmailInput = {
   to: string;
   subject: string;
   html: string;
+  text?: string;
 };
 
-function hasSmtpConfig(): boolean {
+export function isEmailConfigured(): boolean {
   return Boolean(env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS && env.EMAIL_FROM);
 }
 
 export async function sendEmail(input: SendEmailInput): Promise<void> {
-  if (!hasSmtpConfig()) {
+  if (!isEmailConfigured()) {
     return;
   }
 
@@ -30,6 +31,7 @@ export async function sendEmail(input: SendEmailInput): Promise<void> {
     from: env.EMAIL_FROM,
     to: input.to,
     subject: input.subject,
-    html: input.html
+    html: input.html,
+    text: input.text
   });
 }

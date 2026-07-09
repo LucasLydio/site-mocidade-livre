@@ -1,4 +1,5 @@
-import { hashPassword } from "../../utils/hash";
+import { AppError } from "../../shared/errors/app-error";
+import { comparePassword, hashPassword } from "../../utils/hash";
 import { cacheNamespaces } from "../../infra/redis/cache.namespaces";
 import { invalidateCacheNamespace } from "../../infra/redis/cache.service";
 import { paginationMeta } from "../../utils/pagination";
@@ -46,7 +47,25 @@ export const usersService = {
   },
 
   async update(id: string, input: UpdateUserInput): Promise<PublicUser> {
-    const passwordHash = input.password ? await hashPassword(input.password) : undefined;
+    let passwordHash: string | undefined;
+
+    if (input.password) {
+      if (input.currentPassword) {
+        const user = await usersRepository.findAuthById(id);
+
+        if (!user) {
+          throw new AppError(404, "Usuario nao encontrado.");
+        }
+
+        const currentPasswordMatches = await comparePassword(input.currentPassword, user.passwordHash);
+
+        if (!currentPasswordMatches) {
+          throw new AppError(401, "Senha atual invalida.");
+        }
+      }
+
+      passwordHash = await hashPassword(input.password);
+    }
 
     const user = await usersRepository.update(id, {
       name: input.name?.trim(),

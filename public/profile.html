@@ -46,12 +46,31 @@
 
             <div class="col-12 col-md-6">
               <label class="form-label" for="profile-email">Email</label>
-              <input class="form-control bg-transparent text-body" id="profile-email" name="email" type="email" disabled />
+              <input class="form-control bg-transparent text-body" id="profile-email" name="email" type="email" autocomplete="email" required />
+            </div>
+
+            <div class="col-12">
+              <hr class="my-2" />
+            </div>
+
+            <div class="col-12">
+              <div class="fw-semibold">Alterar senha</div>
+              <div class="text-secondary small">Preencha somente se quiser trocar sua senha atual.</div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label" for="profile-current-password">Senha atual</label>
+              <input class="form-control bg-transparent text-body" id="profile-current-password" name="current_password" type="password" autocomplete="current-password" />
             </div>
 
             <div class="col-12 col-md-6">
-              <label class="form-label" for="profile-role">Perfil</label>
-              <input class="form-control bg-transparent text-body" id="profile-role" name="role" type="text" disabled />
+              <label class="form-label" for="profile-password">Nova senha</label>
+              <input class="form-control bg-transparent text-body" id="profile-password" name="password" type="password" autocomplete="new-password" minlength="8" />
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="profile-password-confirm">Confirmar nova senha</label>
+              <input class="form-control bg-transparent text-body" id="profile-password-confirm" name="password_confirm" type="password" autocomplete="new-password" minlength="8" />
             </div>
           </div>
 
@@ -71,4 +90,3 @@
     <script type="module" src="assets/js/pages/profile.js"></script>
   </body>
 </html>
-

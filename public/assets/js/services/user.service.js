@@ -6,11 +6,14 @@ export class UsersService {
     return apiClient.get('/users/me');
   }
 
-  async updateMe({ name, telephone } = {}) {
+  async updateMe({ name, email, telephone, currentPassword, password } = {}) {
     const current = getUser() || await this.getMe();
     const user = await apiClient.patch(`/users/${encodeURIComponent(current.id)}`, {
       ...(name !== undefined ? { name } : {}),
-      ...(telephone !== undefined ? { telephone: telephone || null } : {})
+      ...(email !== undefined ? { email } : {}),
+      ...(telephone !== undefined ? { telephone: telephone || null } : {}),
+      ...(currentPassword !== undefined ? { currentPassword } : {}),
+      ...(password !== undefined ? { password } : {})
     });
     setSession({ user });
     return user;

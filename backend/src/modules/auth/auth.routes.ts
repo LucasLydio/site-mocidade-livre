@@ -13,6 +13,11 @@ export const authRoutes: RouteDefinition[] = [
     handler: (request) => authController.login(request)
   },
   {
+    method: "POST",
+    path: "/auth/recover-password",
+    handler: (request) => authController.recoverPassword(request)
+  },
+  {
     method: "GET",
     path: "/auth/me",
     protected: true,
@@ -24,4 +29,3 @@ export const authRoutes: RouteDefinition[] = [
     handler: () => authController.logout()
   }
 ];
-

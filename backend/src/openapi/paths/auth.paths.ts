@@ -67,6 +67,33 @@ export const authPaths = {
       }
     }
   },
+  "/auth/recover-password": {
+    post: {
+      tags: ["Auth"],
+      operationId: "recoverInternalUserPassword",
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/RecoverPasswordRequest" },
+            example: {
+              email: "usuario@test.com"
+            }
+          }
+        }
+      },
+      responses: {
+        "200": {
+          description: "Password recovery request accepted",
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/MessageResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
   "/auth/me": {
     get: {
       tags: ["Auth"],

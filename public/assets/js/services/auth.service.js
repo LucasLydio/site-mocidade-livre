@@ -19,6 +19,10 @@ export class AuthService {
     return data;
   }
 
+  recoverPassword({ email }) {
+    return apiClient.post('/auth/recover-password', { email });
+  }
+
   async me() {
     const user = await apiClient.get('/auth/me');
     setSession({ user });
@@ -37,5 +41,6 @@ export class AuthService {
 export const authService = new AuthService();
 export const login = (input) => authService.login(input);
 export const register = (input) => authService.register(input);
+export const recoverPassword = (input) => authService.recoverPassword(input);
 export const logout = () => authService.logout();
 export const getSession = () => authService.me();

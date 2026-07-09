@@ -6,7 +6,9 @@ export type AuthenticatedUser = {
   id: string;
   name: string;
   email: string;
+  telephone?: string | null;
   role: UserRole;
+  isActive?: boolean;
 };
 
 export type HttpRequest = {

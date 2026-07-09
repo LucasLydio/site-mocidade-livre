@@ -12,6 +12,10 @@ export const loginSchema = z.object({
 
 export const registerSchema = publicRegisterSchema;
 
+export const recoverPasswordSchema = z.object({
+  email: z.string().email().max(160)
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
-
+export type RecoverPasswordInput = z.infer<typeof recoverPasswordSchema>;

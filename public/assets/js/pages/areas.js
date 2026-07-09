@@ -56,7 +56,7 @@ function renderAreas(areas) {
 
     const cta = node.querySelector('[data-area-cta]');
     if (cta) {
-      const url = new URL('contact.html', window.location.href);
+      const url = new URL('contact-interests.html', window.location.href);
       url.searchParams.set('area', area.slug);
       cta.setAttribute('href', url.pathname + url.search);
     }

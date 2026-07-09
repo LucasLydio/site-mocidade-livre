@@ -1,11 +1,13 @@
+import crypto from "node:crypto";
 import { AppError } from "../../shared/errors/app-error";
-import { comparePassword } from "../../utils/hash";
+import { comparePassword, hashPassword } from "../../utils/hash";
 import { signAccessToken } from "../../middlewares/auth.middleware";
-import { sendEmail } from "../../infra/smtp/email.service";
-import { welcomeTemplate } from "../../infra/smtp/email.template";
+import { isEmailConfigured, sendEmail } from "../../infra/smtp/email.service";
+import { recoverPasswordTemplate, welcomeTemplate } from "../../infra/smtp/email.template";
+import { env } from "../../config/env";
 import { usersService } from "../users/users.service";
 import { authRepository } from "./auth.repository";
-import type { LoginInput, RegisterInput } from "./auth.schema";
+import type { LoginInput, RecoverPasswordInput, RegisterInput } from "./auth.schema";
 
 function accessTokenCookie(token: string): string {
   return [
@@ -18,6 +20,22 @@ function accessTokenCookie(token: string): string {
 }
 
 export const clearAccessTokenCookie = "pg_access_token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0";
+
+const recoverPasswordMessage = "Se este email estiver cadastrado, enviaremos uma senha temporaria em instantes.";
+
+function generateTemporaryPassword(): string {
+  return `ML-${crypto.randomBytes(10).toString("base64url")}`;
+}
+
+function publicLoginUrl(): string {
+  const base = (env.FRONTEND_URL || env.APP_URL).replace(/\/+$/, "");
+
+  try {
+    return new URL("login.html", `${base}/`).toString();
+  } catch {
+    return `${base}/login.html`;
+  }
+}
 
 export const authService = {
   async login(input: LoginInput) {
@@ -77,5 +95,49 @@ export const authService = {
       token,
       cookie: accessTokenCookie(token)
     };
+  },
+
+  async recoverPassword(input: RecoverPasswordInput) {
+    if (!isEmailConfigured()) {
+      throw new AppError(503, "Recuperacao de senha indisponivel no momento.");
+    }
+
+    const email = input.email.trim().toLowerCase();
+    const user = await authRepository.findUserByLogin(email);
+
+    if (!user || !user.isActive) {
+      return { message: recoverPasswordMessage };
+    }
+
+    const temporaryPassword = generateTemporaryPassword();
+    const temporaryPasswordHash = await hashPassword(temporaryPassword);
+    const previousPasswordHash = user.passwordHash;
+
+    await authRepository.updatePassword(user.id, temporaryPasswordHash);
+
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "Recuperacao de senha - Mocidade Livre",
+        html: recoverPasswordTemplate({
+          name: user.name,
+          temporaryPassword,
+          loginUrl: publicLoginUrl()
+        }),
+        text: `Ola, ${user.name}. Sua senha temporaria da Mocidade Livre e: ${temporaryPassword}. Entre e altere sua senha assim que possivel.`
+      });
+    } catch (error) {
+      console.error("recover password email failed", error);
+
+      try {
+        await authRepository.updatePassword(user.id, previousPasswordHash);
+      } catch (restoreError) {
+        console.error("recover password rollback failed", restoreError);
+      }
+
+      throw new AppError(503, "Nao foi possivel enviar a senha temporaria. Tente novamente em alguns minutos.");
+    }
+
+    return { message: recoverPasswordMessage };
   }
 };

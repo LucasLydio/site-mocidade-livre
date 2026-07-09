@@ -35,9 +35,23 @@ export const updateUserSchema = z
     role: userRoleSchema.optional(),
     telephone: z.string().min(8).max(30).nullable().optional(),
     isActive: z.boolean().optional(),
+    currentPassword: z.string().min(1).max(100).optional(),
     password: z.string().min(8).max(100).optional()
   })
-  .refine((value) => Object.keys(value).length > 0, "Informe ao menos um campo.");
+  .refine(
+    (value) =>
+      value.name !== undefined ||
+      value.email !== undefined ||
+      value.role !== undefined ||
+      value.telephone !== undefined ||
+      value.isActive !== undefined ||
+      value.password !== undefined,
+    "Informe ao menos um campo."
+  )
+  .refine((value) => !value.currentPassword || value.password, {
+    message: "Informe a nova senha.",
+    path: ["password"]
+  });
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type PublicRegisterInput = z.infer<typeof publicRegisterSchema>;
