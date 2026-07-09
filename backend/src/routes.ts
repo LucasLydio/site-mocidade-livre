@@ -9,6 +9,7 @@ import { categoriesRoutes } from "./modules/categories/categories.routes";
 import { contactInterestsRoutes } from "./modules/contact-interests/contact-interests.routes";
 import { eventsRoutes } from "./modules/events/events.routes";
 import { productsRoutes } from "./modules/products/products.routes";
+import { storageRoutes } from "./modules/storage/storage.routes";
 import { openApiDocument } from "./openapi";
 
 const openApiRoute: RouteDefinition = {
@@ -33,6 +34,7 @@ export const routes: RouteDefinition[] = [
   ...contactInterestsRoutes,
   ...categoriesRoutes,
   ...productsRoutes,
+  ...storageRoutes,
   ...cartsRoutes
 ];
 

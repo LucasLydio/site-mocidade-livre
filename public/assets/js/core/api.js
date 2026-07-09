@@ -28,12 +28,13 @@ export class ApiClient {
   }
 
   async request(path, { method = 'GET', body, headers = {}, signal } = {}) {
+    const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
     const requestHeaders = {
       Accept: 'application/json',
       ...headers
     };
 
-    if (body !== undefined) {
+    if (body !== undefined && !isFormData) {
       requestHeaders['Content-Type'] = 'application/json';
     }
 
@@ -44,7 +45,7 @@ export class ApiClient {
         headers: requestHeaders,
         credentials: 'same-origin',
         signal,
-        body: body === undefined ? undefined : JSON.stringify(body)
+        body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body)
       });
     } catch (error) {
       if (error?.name === 'AbortError') throw error;

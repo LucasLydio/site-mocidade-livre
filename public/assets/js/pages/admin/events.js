@@ -1,6 +1,7 @@
 import { clearSession, requireAuthRedirect } from '../../core/session.js';
 import { getMe as getUserMe } from '../../services/user.service.js';
 import { createEvent, deleteEvent, listAdminEvents, toggleEventPublished, updateEvent } from '../../services/events.service.js';
+import { uploadImage, validateUploadImage } from '../../services/storage.service.js';
 import { setSafeImage } from '../../utils/dom.js';
 
 function waitForLayoutReady() { return window.__mocidadeLayoutReady ? Promise.resolve() : new Promise((resolve) => document.addEventListener('mocidade:layout-ready', resolve, { once: true })); }
@@ -15,13 +16,31 @@ function escapeHtml(text) {
 function toDate(value) { const d = new Date(String(value || '')); return Number.isFinite(d.getTime()) ? d : null; }
 
 const PLACEHOLDER_COVER = '../assets/images/areas/placeholder.svg';
+let coverPreviewObjectUrl = null;
+
+function revokeCoverPreviewObjectUrl() {
+  if (!coverPreviewObjectUrl) return;
+  URL.revokeObjectURL(coverPreviewObjectUrl);
+  coverPreviewObjectUrl = null;
+}
 
 function setCoverPreview(url, title) {
+  revokeCoverPreviewObjectUrl();
   setSafeImage(document.getElementById('event-cover-preview'), {
     src: url,
     fallback: PLACEHOLDER_COVER,
     alt: title || 'Capa do evento'
   });
+}
+
+function previewSelectedCover(file, alt = 'Capa do evento') {
+  const preview = document.getElementById('event-cover-preview');
+  if (!preview || !file) return;
+
+  revokeCoverPreviewObjectUrl();
+  coverPreviewObjectUrl = URL.createObjectURL(file);
+  preview.src = coverPreviewObjectUrl;
+  preview.alt = alt;
 }
 
 function pad2(n) {
@@ -56,6 +75,8 @@ function setForm(form, ev) {
   form.querySelector('[name="location_name"]').value = ev?.locationName || '';
   form.querySelector('[name="location_address"]').value = ev?.locationAddress || '';
   form.querySelector('[name="cover_image_url"]').value = ev?.coverImageUrl || '';
+  const coverFile = form.querySelector('[name="cover_file"]');
+  if (coverFile) coverFile.value = '';
   form.querySelector('[name="is_published"]').checked = Boolean(ev?.isPublished);
 
   setCoverPreview(ev?.coverImageUrl, ev?.title);
@@ -156,6 +177,24 @@ async function init() {
     setAlert(null);
   });
 
+  form?.querySelector('[name="cover_file"]')?.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setCoverPreview(current?.coverImageUrl, current?.title);
+      return;
+    }
+
+    const error = validateUploadImage(file);
+    if (error) {
+      e.target.value = '';
+      setAlert(error, 'warning');
+      return;
+    }
+
+    previewSelectedCover(file, form.querySelector('[name="title"]')?.value || 'Capa do evento');
+    setAlert(null);
+  });
+
   document.addEventListener('click', async (e) => {
     const editId = e.target.closest('[data-admin-edit]')?.getAttribute('data-admin-edit');
     if (editId) {
@@ -195,7 +234,8 @@ async function init() {
     const endsAt = fromLocalDatetimeValue(form.querySelector('[name="ends_at"]').value);
     const locationName = form.querySelector('[name="location_name"]').value.trim() || null;
     const locationAddress = form.querySelector('[name="location_address"]').value.trim() || null;
-    const coverImageUrl = form.querySelector('[name="cover_image_url"]').value.trim() || null;
+    const coverFile = form.querySelector('[name="cover_file"]')?.files?.[0] || null;
+    let coverImageUrl = form.querySelector('[name="cover_image_url"]').value.trim() || null;
     const isPublished = Boolean(form.querySelector('[name="is_published"]').checked);
 
     if (!title) {
@@ -208,22 +248,28 @@ async function init() {
       return;
     }
 
-    const payload = {
-      title,
-      summary,
-      description,
-      startsAt,
-      endsAt,
-      locationName,
-      locationAddress,
-      coverImageUrl,
-      isPublished,
-    };
-
     const submitBtn = form.querySelector('[type="submit"]');
     if (submitBtn) submitBtn.disabled = true;
 
     try {
+      if (coverFile) {
+        const uploaded = await uploadImage(coverFile, { folder: 'events' });
+        coverImageUrl = uploaded.publicUrl;
+        form.querySelector('[name="cover_image_url"]').value = coverImageUrl;
+      }
+
+      const payload = {
+        title,
+        summary,
+        description,
+        startsAt,
+        endsAt,
+        locationName,
+        locationAddress,
+        coverImageUrl,
+        isPublished,
+      };
+
       const saved = id ? await updateEvent(id, payload) : await createEvent(payload);
       setAlert('Evento salvo.', 'success');
       await load();

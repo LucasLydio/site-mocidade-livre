@@ -183,6 +183,17 @@ export const openApiComponents = {
       type: "object", required: ["imageUrl"],
       properties: { imageUrl: { type: "string", format: "uri" }, storagePath: nullableString, altText: nullableString, isCover: { type: "boolean" }, sortOrder: { type: "integer", minimum: 0 } }
     },
+    StorageUpload: {
+      type: "object",
+      required: ["path", "publicUrl", "contentType", "size", "originalName"],
+      properties: {
+        path: { type: "string" },
+        publicUrl: { type: "string", format: "uri" },
+        contentType: { type: "string", enum: ["image/webp", "image/png", "image/jpeg"] },
+        size: { type: "integer", minimum: 1 },
+        originalName: { type: "string" }
+      }
+    },
     CartInput: {
       type: "object",
       properties: { customerName: nullableString, customerWhatsapp: nullableString, notes: nullableString, status: { $ref: "#/components/schemas/CartStatus" } }

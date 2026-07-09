@@ -12,18 +12,32 @@ function normalizeHeaders(headers?: Record<string, string | undefined>): Record<
   return normalized;
 }
 
-function parseBody(event: NetlifyEvent): unknown {
+function rawBodyFromEvent(event: NetlifyEvent): Buffer | undefined {
   if (!event.body) {
     return undefined;
   }
 
-  const rawBody = event.isBase64Encoded ? Buffer.from(event.body, "base64").toString("utf8") : event.body;
+  return Buffer.from(event.body, event.isBase64Encoded ? "base64" : "utf8");
+}
 
-  if (!rawBody.trim()) {
+function parseBody(event: NetlifyEvent, headers: Record<string, string>, rawBody?: Buffer): unknown {
+  if (!rawBody) {
     return undefined;
   }
 
-  return JSON.parse(rawBody);
+  const contentType = headers["content-type"] ?? "";
+
+  if (contentType && !contentType.includes("application/json") && !contentType.includes("+json")) {
+    return undefined;
+  }
+
+  const rawText = rawBody.toString("utf8");
+
+  if (!rawText.trim()) {
+    return undefined;
+  }
+
+  return JSON.parse(rawText);
 }
 
 function normalizeQuery(query?: Record<string, string | undefined> | null): Record<string, string> {
@@ -46,6 +60,7 @@ function clientIp(headers: Record<string, string>): string {
 
 export function createHttpRequest(event: NetlifyEvent, pathOverride?: string): HttpRequest {
   const headers = normalizeHeaders(event.headers);
+  const rawBody = rawBodyFromEvent(event);
 
   return {
     method: event.httpMethod.toUpperCase() as HttpMethod,
@@ -53,7 +68,8 @@ export function createHttpRequest(event: NetlifyEvent, pathOverride?: string): H
     headers,
     query: normalizeQuery(event.queryStringParameters),
     params: {},
-    body: parseBody(event),
+    body: parseBody(event, headers, rawBody),
+    rawBody,
     ip: clientIp(headers)
   };
 }
@@ -88,4 +104,3 @@ export function sanitizePath(path: string): string {
     .replace(/^\/\.netlify\/functions/, "")
     .replace(/\/$/, "") || "/";
 }
-

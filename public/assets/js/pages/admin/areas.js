@@ -1,6 +1,7 @@
 import { clearSession, requireAuthRedirect } from '../../core/session.js';
 import { getMe as getUserMe } from '../../services/user.service.js';
 import { createArea, deleteArea, getAdminAreas, toggleAreaActive, updateArea } from '../../services/areas.service.js';
+import { uploadImage, validateUploadImage } from '../../services/storage.service.js';
 import { setSafeImage } from '../../utils/dom.js';
 
 function waitForLayoutReady() {
@@ -39,6 +40,24 @@ function slugify(text) {
 
 function escapeHtml(text) {
   return String(text || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+let coverPreviewObjectUrl = null;
+
+function revokeCoverPreviewObjectUrl() {
+  if (!coverPreviewObjectUrl) return;
+  URL.revokeObjectURL(coverPreviewObjectUrl);
+  coverPreviewObjectUrl = null;
+}
+
+function previewSelectedCover(file, alt = 'Capa da área') {
+  const preview = document.getElementById('area-cover-preview');
+  if (!preview || !file) return;
+
+  revokeCoverPreviewObjectUrl();
+  coverPreviewObjectUrl = URL.createObjectURL(file);
+  preview.src = coverPreviewObjectUrl;
+  preview.alt = alt;
 }
 
 function renderList(areas) {
@@ -104,12 +123,15 @@ function setForm(form, area) {
   form.querySelector('[name="slug"]').value = area?.slug || '';
   form.querySelector('[name="description"]').value = area?.description || '';
   form.querySelector('[name="cover_image_url"]').value = area?.coverImageUrl || '';
+  const coverFile = form.querySelector('[name="cover_file"]');
+  if (coverFile) coverFile.value = '';
   form.querySelector('[name="is_active"]').checked = area ? Boolean(area.isActive) : true;
 
   const delBtn = document.querySelector('[data-admin-delete]');
   if (delBtn) delBtn.disabled = !area?.id;
 
   const preview = document.getElementById('area-cover-preview');
+  revokeCoverPreviewObjectUrl();
   setSafeImage(preview, {
     src: area?.coverImageUrl,
     fallback: '../assets/images/areas/placeholder.svg',
@@ -185,6 +207,29 @@ async function init() {
     e.target.dataset.touched = 'true';
   });
 
+  form?.querySelector('[name="cover_file"]')?.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      revokeCoverPreviewObjectUrl();
+      setSafeImage(document.getElementById('area-cover-preview'), {
+        src: form.querySelector('[name="cover_image_url"]')?.value,
+        fallback: '../assets/images/areas/placeholder.svg',
+        alt: form.querySelector('[name="name"]')?.value || 'Capa da área'
+      });
+      return;
+    }
+
+    const error = validateUploadImage(file);
+    if (error) {
+      e.target.value = '';
+      setAlert(error, 'warning');
+      return;
+    }
+
+    previewSelectedCover(file, form.querySelector('[name="name"]')?.value || 'Capa da área');
+    setAlert(null);
+  });
+
   document.addEventListener('click', async (e) => {
     const editId = e.target.closest('[data-admin-edit]')?.getAttribute('data-admin-edit');
     if (editId) {
@@ -220,15 +265,21 @@ async function init() {
     const name = form.querySelector('[name="name"]').value.trim();
     const slug = form.querySelector('[name="slug"]').value.trim();
     const description = form.querySelector('[name="description"]').value.trim() || null;
-    const coverImageUrl = form.querySelector('[name="cover_image_url"]').value.trim() || null;
+    const coverFile = form.querySelector('[name="cover_file"]')?.files?.[0] || null;
+    let coverImageUrl = form.querySelector('[name="cover_image_url"]').value.trim() || null;
     const isActive = Boolean(form.querySelector('[name="is_active"]').checked);
-
-    const payload = { name, slug, description, coverImageUrl, isActive };
 
     const submitBtn = form.querySelector('[type="submit"]');
     if (submitBtn) submitBtn.disabled = true;
 
     try {
+      if (coverFile) {
+        const uploaded = await uploadImage(coverFile, { folder: 'areas' });
+        coverImageUrl = uploaded.publicUrl;
+        form.querySelector('[name="cover_image_url"]').value = coverImageUrl;
+      }
+
+      const payload = { name, slug, description, coverImageUrl, isActive };
       const saved = id ? await updateArea(id, payload) : await createArea(payload);
       setAlert('Área salva.', 'success');
       await load();

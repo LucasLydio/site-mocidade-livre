@@ -16,6 +16,7 @@ export type HttpRequest = {
   query: Record<string, string>;
   params: Record<string, string>;
   body: unknown;
+  rawBody?: Buffer;
   ip: string;
   user?: AuthenticatedUser;
 };

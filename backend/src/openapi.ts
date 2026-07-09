@@ -7,6 +7,7 @@ import { contactInterestsPaths } from "./openapi/paths/contact-interests.paths";
 import { eventsPaths } from "./openapi/paths/events.paths";
 import { healthPaths } from "./openapi/paths/health.paths";
 import { productsPaths } from "./openapi/paths/products.paths";
+import { storagePaths } from "./openapi/paths/storage.paths";
 import { usersPaths } from "./openapi/paths/users.paths";
 
 export const openApiDocument = {
@@ -35,6 +36,7 @@ export const openApiDocument = {
     { name: "Contact Interests" },
     { name: "Categories" },
     { name: "Products" },
+    { name: "Storage" },
     { name: "Carts" }
   ],
   paths: {
@@ -46,6 +48,7 @@ export const openApiDocument = {
     ...contactInterestsPaths,
     ...categoriesPaths,
     ...productsPaths,
+    ...storagePaths,
     ...cartsPaths
   },
   components: openApiComponents

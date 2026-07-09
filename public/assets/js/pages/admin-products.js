@@ -11,6 +11,7 @@ import {
   updateProductImage,
   deleteProductImage
 } from '../services/products.service.js';
+import { uploadImage, validateUploadImage } from '../services/storage.service.js';
 import { formatBRLFromCents } from '../utils/format.js';
 import { safeWebUrl } from '../utils/dom.js';
 
@@ -134,8 +135,8 @@ function setFormMode(form, { product = null } = {}) {
   if (deleteBtn) deleteBtn.disabled = !product?.id;
 
   const uploadBtn = document.querySelector('[data-admin-upload-image]');
-  const imageUrl = document.getElementById('admin-image-url')?.value?.trim();
-  if (uploadBtn) uploadBtn.disabled = !product?.id || !imageUrl;
+  const imageFile = document.getElementById('admin-image-file')?.files?.[0];
+  if (uploadBtn) uploadBtn.disabled = !product?.id || !imageFile;
 }
 
 function renderImages(images = []) {
@@ -353,10 +354,11 @@ async function init() {
     const id = form?.querySelector('[name="id"]')?.value?.trim();
     if (!id) return;
 
-    const urlInput = document.getElementById('admin-image-url');
-    const imageUrl = urlInput?.value?.trim();
-    if (!imageUrl || !urlInput.checkValidity()) {
-      setAlert('Informe uma URL de imagem válida.', 'warning');
+    const fileInput = document.getElementById('admin-image-file');
+    const imageFile = fileInput?.files?.[0] || null;
+    const imageError = validateUploadImage(imageFile);
+    if (imageError) {
+      setAlert(imageError, 'warning');
       return;
     }
 
@@ -367,9 +369,11 @@ async function init() {
       setAlert(null);
       const btn = document.querySelector('[data-admin-upload-image]');
       if (btn) btn.disabled = true;
+      const uploaded = await uploadImage(imageFile, { folder: 'products' });
+      const imageUrl = uploaded.publicUrl;
       await createProductImage(id, { imageUrl, altText, isCover, sortOrder: 0 });
       await loadProduct(id);
-      if (urlInput) urlInput.value = '';
+      if (fileInput) fileInput.value = '';
       const alt = document.getElementById('admin-image-alt');
       if (alt) alt.value = '';
       const cover = document.getElementById('admin-image-cover');
@@ -379,15 +383,26 @@ async function init() {
       setAlert(err.message || 'Falha ao enviar imagem.', 'danger');
     } finally {
       const btn = document.querySelector('[data-admin-upload-image]');
-      if (btn) btn.disabled = !id || !document.getElementById('admin-image-url')?.value?.trim();
+      if (btn) btn.disabled = !id || !document.getElementById('admin-image-file')?.files?.[0];
     }
   });
 
-  document.getElementById('admin-image-url')?.addEventListener('input', () => {
+  document.getElementById('admin-image-file')?.addEventListener('change', (e) => {
     const btn = document.querySelector('[data-admin-upload-image]');
     if (!btn) return;
     const id = form?.querySelector('[name="id"]')?.value?.trim();
-    btn.disabled = !id || !document.getElementById('admin-image-url')?.value?.trim();
+    const file = e.target.files?.[0] || null;
+    const error = file ? validateUploadImage(file) : null;
+
+    if (error) {
+      e.target.value = '';
+      setAlert(error, 'warning');
+      btn.disabled = true;
+      return;
+    }
+
+    setAlert(null);
+    btn.disabled = !id || !file;
   });
 
   await loadAll();
