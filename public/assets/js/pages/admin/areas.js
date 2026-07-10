@@ -94,7 +94,7 @@ function renderList(areas) {
 
     if (cards) {
       const card = document.createElement('div');
-      card.className = 'p-3 rounded-4 border';
+      card.className = 'p-3   border';
       card.style.borderColor = 'var(--border)';
       card.style.background = 'var(--bg)';
       card.innerHTML = `

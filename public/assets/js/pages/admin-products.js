@@ -89,7 +89,7 @@ function renderProductRows(products) {
 
     if (cards) {
       const card = document.createElement('div');
-      card.className = 'p-3 rounded-4 border';
+      card.className = 'p-3   border';
       card.style.borderColor = 'var(--border)';
       card.style.background = 'var(--surface)';
       card.innerHTML = `
@@ -155,7 +155,7 @@ function renderImages(images = []) {
 
   for (const img of images.slice().sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))) {
     const row = document.createElement('div');
-    row.className = 'd-flex align-items-center justify-content-between gap-3 p-2 rounded-4 border';
+    row.className = 'd-flex align-items-center justify-content-between gap-3 p-2   border';
     row.style.borderColor = 'var(--border)';
     row.innerHTML = `
       <div class="d-flex align-items-center gap-3">

@@ -101,7 +101,7 @@ function renderList(items) {
     const nextValue = ev.isPublished ? 'false' : 'true';
 
     const card = document.createElement('div');
-    card.className = 'p-3 rounded-4 border';
+    card.className = 'p-3   border';
     card.style.borderColor = 'var(--border)';
     card.style.background = 'var(--surface)';
     const summaryHtml = ev.summary ? `<div class="text-secondary small">${escapeHtml(ev.summary)}</div>` : '<div class="text-secondary small">Sem resumo.</div>';

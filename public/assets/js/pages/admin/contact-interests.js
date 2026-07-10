@@ -76,7 +76,7 @@ function renderList(list) {
     const preview = messagePreview.length > 140 ? `${messagePreview.slice(0, 140)}…` : messagePreview;
 
     const card = document.createElement('div');
-    card.className = 'p-3 rounded-4 border';
+    card.className = 'p-3   border';
     card.style.borderColor = 'var(--border)';
     card.style.background = 'var(--surface)';
 

@@ -1,45 +1,82 @@
-<section class="mt-5">
-  <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+<section class="mt-5 home-upcoming" data-home-upcoming-section>
+  <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
     <div>
       <h2 class="h4 mb-1">Próximos eventos</h2>
       <p class="text-secondary mb-0">Fique por dentro do que está chegando.</p>
     </div>
-    <a class="btn btn-outline-secondary btn-sm" href="events.html">
+    <a class="btn btn-outline-secondary btn-sm px-3" href="events.html">
       Ver todos
     </a>
   </div>
 
-  <div class="row g-3">
-    <div class="col-12 col-md-4">
-      <div class="p-4 rounded-4 border h-100" style="background: var(--surface); border-color: var(--border)">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="badge text-bg-dark">SÁB</span>
-          <span class="text-secondary small">19:30</span>
+  <div class="d-flex align-items-center gap-2 text-secondary small py-3" data-home-upcoming-loading>
+    <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+    <span>Carregando próximo evento...</span>
+  </div>
+
+  <a
+    class="home-upcoming-card d-none overflow-hidden text-decoration-none "
+    
+    data-home-upcoming-card
+    href="events.html"
+    aria-label="Ver detalhes do próximo evento"
+  >
+    <div class="row g-0 h-100">
+      
+      <div class="col-md-12 rounded   col-lg-4 position-relative">
+        <img 
+          class="img-fluid w-100 h-100 object-fit-cover upcoming-cover-img" 
+          data-home-upcoming-cover 
+          alt="" 
+          loading="lazy" 
+        />
+        <div class="position-absolute top-0 start-0 p-3">
+          <span class="badge rounded-pill bg-white text-dark shadow-sm px-3 py-2">
+            <i class="bi bi-calendar-event me-1" aria-hidden="true"></i>
+            Próximo evento
+          </span>
         </div>
-        <div class="fw-semibold">Culto Jovem</div>
-        <div class="text-secondary small mt-1">Louvor, palavra e comunhão.</div>
       </div>
-    </div>
-    <div class="col-12 col-md-4">
-      <div class="p-4 rounded-4 border h-100" style="background: var(--surface); border-color: var(--border)">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="badge text-bg-dark">DOM</span>
-          <span class="text-secondary small">10:00</span>
+
+      <div class="col-md-5 col-lg-8">
+        <div class="card-body p-4 p-lg-5 d-flex flex-column h-100">
+          
+          <div class="mb-2">
+            <span class="text-primary small fw-semibold text-uppercase tracking-wide" data-home-upcoming-date-chip></span>
+          </div>
+
+          <div class="home-upcoming-copy mb-4">
+            <h3 class="card-title h4 mb-2 text-body-emphasis" data-home-upcoming-title></h3>
+            <p class="card-text text-secondary mb-0" data-home-upcoming-summary></p>
+          </div>
+
+          <div class="d-flex flex-wrap column-gap-4 row-gap-2 mb-4 text-secondary small fw-medium">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-clock" aria-hidden="true"></i>
+              <span data-home-upcoming-datetime></span>
+            </div>
+            <div class="d-flex align-items-center gap-2" data-home-upcoming-location-row>
+              <i class="bi bi-geo-alt" aria-hidden="true"></i>
+              <span data-home-upcoming-location></span>
+            </div>
+          </div>
+
+          <div class="mt-auto">
+            <span class="btn btn-dark btn-sm px-4">
+              Ver detalhes
+              <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i>
+            </span>
+          </div>
+          
         </div>
-        <div class="fw-semibold">Encontro de Áreas</div>
-        <div class="text-secondary small mt-1">Integração e planejamento.</div>
       </div>
+      
     </div>
-    <div class="col-12 col-md-4">
-      <div class="p-4 rounded-4 border h-100" style="background: var(--surface); border-color: var(--border)">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="badge text-bg-dark">QUI</span>
-          <span class="text-secondary small">20:00</span>
-        </div>
-        <div class="fw-semibold">Noite de Oração</div>
-        <div class="text-secondary small mt-1">Momento de busca e intercessão.</div>
-      </div>
-    </div>
+  </a>
+
+  <div class="p-5   border d-none text-center" style="background: var(--surface); border-color: var(--border)" data-home-upcoming-empty>
+    <i class="bi bi-calendar-x display-6 text-secondary mb-3 d-block" aria-hidden="true"></i>
+    <div class="fw-semibold fs-5 text-body-emphasis mb-1">Nenhum evento próximo publicado.</div>
+    <div class="text-secondary small">Volte em breve ou acompanhe a página de eventos.</div>
   </div>
 </section>
-

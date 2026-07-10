@@ -27,7 +27,7 @@
   <body>
     <div data-include="components/layout/header.html"></div>
 
-    <main class="container py-5">
+    <main class=" my-0 mx-auto py-5 px-2">
       <a class="btn btn-outline-secondary btn-sm mb-3" href="events.html">
         <i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Voltar para eventos
       </a>
@@ -35,36 +35,41 @@
       <div class="alert d-none" id="event-alert" role="alert"></div>
       <div class="text-secondary small" data-event-loading>Carregando...</div>
 
-      <article class="d-none" data-event-content>
-        <div class="ratio ratio-16x9 rounded-4 overflow-hidden border" style="border-color: var(--border)">
-          <img id="event-cover" class="w-100 h-100 object-fit-cover" alt="" />
+      <article class="d-none d-flex justify-content-around flex-wrap align-items-stretch" 
+        style="border-color: var(--border); max-width: 800px;"
+        data-event-content>
+        <div class="d-flex rounded   overflow-hidden" style="border-color: var(--border);">
+          <img id="event-cover" class="w-100" alt="img" />
         </div>
 
-        <header class="mt-4">
-          <h1 class="h3 mb-2" data-event-title></h1>
-          <p class="text-secondary mb-0" data-event-summary></p>
-        </header>
+        <div class="w-100"> 
+          <header class="mt-4">
+            <h1 class="h3 mb-2" data-event-title></h1>
+            <p class="text-secondary mb-0" data-event-summary></p>
+          </header>
 
-        <section class="mt-4 p-4 rounded-4 border" style="background: var(--surface); border-color: var(--border)">
-          <div class="d-flex flex-column gap-2">
-            <div class="d-flex gap-2 align-items-start">
-              <i class="bi bi-clock text-secondary" aria-hidden="true"></i>
-              <div data-event-datetime></div>
-            </div>
-            <div class="d-flex gap-2 align-items-start d-none" data-event-location-row>
-              <i class="bi bi-geo-alt text-secondary" aria-hidden="true"></i>
-              <div>
-                <div data-event-location></div>
-                <div class="text-secondary small" data-event-address></div>
+          <section class="mt-4 p-4   border" style="background: var(--surface); border-color: var(--border)">
+            <div class="d-flex flex-column gap-2">
+              <div class="d-flex gap-2 align-items-start">
+                <i class="bi bi-clock text-secondary" aria-hidden="true"></i>
+                <div data-event-datetime></div>
+              </div>
+              <div class="d-flex gap-2 align-items-start d-none" data-event-location-row>
+                <i class="bi bi-geo-alt text-secondary" aria-hidden="true"></i>
+                <div>
+                  <div data-event-location></div>
+                  <div class="text-secondary small" data-event-address></div>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section class="mt-4">
-          <h2 class="h5 mb-2">Descrição</h2>
-          <div class="text-body" data-event-description style="white-space: pre-wrap"></div>
-        </section>
+          <section class="mt-4">
+            <h2 class="h5 mb-2">Descrição</h2>
+            <div class="text-body" data-event-description style="white-space: pre-wrap"></div>
+          </section>
+
+        </div>
       </article>
     </main>
 
