@@ -155,8 +155,9 @@
   margin-top: 1.6rem;
 }
 
-.home-link {
-  color: #fff !important;
+.hero-link {
+  color: rgba(255, 255, 255, 0.82) !important;
+  font-weight: 500;
 }
 
 .home-btn {
