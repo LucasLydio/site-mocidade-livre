@@ -199,6 +199,76 @@ export const openApiComponents = {
         originalName: { type: "string" }
       }
     },
+    StorageUsage: {
+      type: "object",
+      required: ["type", "id", "label"],
+      properties: {
+        type: { type: "string", enum: ["area", "event", "product_image"] },
+        id: { type: "string", format: "uuid" },
+        label: { type: "string" }
+      }
+    },
+    StorageFile: {
+      type: "object",
+      required: ["path", "name", "folder", "publicUrl", "isUsed", "usedBy"],
+      properties: {
+        path: { type: "string" },
+        name: { type: "string" },
+        folder: { type: "string" },
+        publicUrl: { type: "string", format: "uri" },
+        size: { type: ["integer", "null"], minimum: 0 },
+        contentType: { type: ["string", "null"] },
+        createdAt: { type: ["string", "null"], format: "date-time" },
+        updatedAt: { type: ["string", "null"], format: "date-time" },
+        isUsed: { type: "boolean" },
+        usedBy: { type: "array", items: { $ref: "#/components/schemas/StorageUsage" } }
+      }
+    },
+    StorageFilesResponseData: {
+      type: "object",
+      required: ["bucket", "summary", "files"],
+      properties: {
+        bucket: { type: "string" },
+        summary: {
+          type: "object",
+          required: ["total", "used", "unused", "totalBytes", "unusedBytes"],
+          properties: {
+            total: { type: "integer", minimum: 0 },
+            used: { type: "integer", minimum: 0 },
+            unused: { type: "integer", minimum: 0 },
+            totalBytes: { type: "integer", minimum: 0 },
+            unusedBytes: { type: "integer", minimum: 0 }
+          }
+        },
+        files: { type: "array", items: { $ref: "#/components/schemas/StorageFile" } }
+      }
+    },
+    DeleteStorageFilesRequest: {
+      type: "object",
+      required: ["paths"],
+      properties: {
+        paths: { type: "array", minItems: 1, maxItems: 100, items: { type: "string" } }
+      }
+    },
+    DeleteStorageFilesResponseData: {
+      type: "object",
+      required: ["deleted", "skipped"],
+      properties: {
+        deleted: { type: "array", items: { type: "string" } },
+        skipped: {
+          type: "array",
+          items: {
+            type: "object",
+            required: ["path", "reason"],
+            properties: {
+              path: { type: "string" },
+              reason: { type: "string" },
+              usedBy: { type: "array", items: { $ref: "#/components/schemas/StorageUsage" } }
+            }
+          }
+        }
+      }
+    },
     CartInput: {
       type: "object",
       properties: { customerName: nullableString, customerWhatsapp: nullableString, notes: nullableString, status: { $ref: "#/components/schemas/CartStatus" } }

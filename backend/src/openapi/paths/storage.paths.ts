@@ -33,5 +33,59 @@ export const storagePaths = {
         "201": resourceResponse("StorageUpload", "Uploaded image")
       }
     }
+  },
+  "/storage/files": {
+    get: {
+      tags: ["Storage"],
+      operationId: "listStorageFiles",
+      security: bearerSecurity,
+      responses: {
+        "200": {
+          description: "Storage files analyzed against database usage",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["success", "data"],
+                properties: {
+                  success: { const: true },
+                  data: { $ref: "#/components/schemas/StorageFilesResponseData" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    delete: {
+      tags: ["Storage"],
+      operationId: "deleteUnusedStorageFiles",
+      security: bearerSecurity,
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/DeleteStorageFilesRequest" }
+          }
+        }
+      },
+      responses: {
+        "200": {
+          description: "Deleted unused files and skipped protected files",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["success", "data"],
+                properties: {
+                  success: { const: true },
+                  data: { $ref: "#/components/schemas/DeleteStorageFilesResponseData" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 } as const;

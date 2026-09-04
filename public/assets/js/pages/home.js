@@ -27,6 +27,81 @@ const dateTimeFormatter = new Intl.DateTimeFormat('pt-BR', {
   minute: '2-digit'
 });
 
+function initHomeSlider() {
+  const slider = document.querySelector('[data-home-slider]');
+  if (!slider) return;
+
+  const slides = Array.from(slider.querySelectorAll('[data-home-slide]'));
+  const dots = Array.from(slider.querySelectorAll('[data-home-slider-dot]'));
+  const previous = slider.querySelector('[data-home-slider-prev]');
+  const next = slider.querySelector('[data-home-slider-next]');
+  const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  let current = Math.max(0, slides.findIndex((slide) => slide.classList.contains('is-active')));
+  let intervalId = null;
+
+  if (slides.length <= 1) {
+    slider.querySelector('.home-slider__controls')?.setAttribute('hidden', '');
+    return;
+  }
+
+  function setSlide(index) {
+    current = (index + slides.length) % slides.length;
+
+    slides.forEach((slide, slideIndex) => {
+      const isActive = slideIndex === current;
+      slide.classList.toggle('is-active', isActive);
+      slide.setAttribute('aria-hidden', String(!isActive));
+    });
+
+    dots.forEach((dot, dotIndex) => {
+      const isActive = dotIndex === current;
+      dot.classList.toggle('is-active', isActive);
+      if (isActive) {
+        dot.setAttribute('aria-current', 'true');
+      } else {
+        dot.removeAttribute('aria-current');
+      }
+    });
+  }
+
+  function stopAutoPlay() {
+    if (!intervalId) return;
+    window.clearInterval(intervalId);
+    intervalId = null;
+  }
+
+  function startAutoPlay() {
+    if (prefersReducedMotion) return;
+    stopAutoPlay();
+    intervalId = window.setInterval(() => setSlide(current + 1), 6500);
+  }
+
+  previous?.addEventListener('click', () => {
+    setSlide(current - 1);
+    startAutoPlay();
+  });
+
+  next?.addEventListener('click', () => {
+    setSlide(current + 1);
+    startAutoPlay();
+  });
+
+  dots.forEach((dot, index) => {
+    dot.addEventListener('click', () => {
+      setSlide(index);
+      startAutoPlay();
+    });
+  });
+
+  slider.addEventListener('mouseenter', stopAutoPlay);
+  slider.addEventListener('mouseleave', startAutoPlay);
+  slider.addEventListener('focusin', stopAutoPlay);
+  slider.addEventListener('focusout', startAutoPlay);
+
+  setSlide(current);
+  startAutoPlay();
+}
+
 function formatDateChip(startsAt) {
   const start = toDate(startsAt);
   return start ? dateChipFormatter.format(start).replace('.', '') : 'Data a confirmar';
@@ -39,7 +114,7 @@ function formatDateTimeRange(startsAt, endsAt) {
   if (!start) return 'Data a confirmar';
   if (!end) return dateTimeFormatter.format(start);
 
-  return `${dateTimeFormatter.format(start)} — ${dateTimeFormatter.format(end)}`;
+  return `${dateTimeFormatter.format(start)} - ${dateTimeFormatter.format(end)}`;
 }
 
 function isUpcoming(event, now = Date.now()) {
@@ -89,7 +164,7 @@ function renderEvent(event) {
   const location = [event.locationName, event.locationAddress]
     .map((value) => String(value || '').trim())
     .filter(Boolean)
-    .join(' • ');
+    .join(' - ');
 
   setVisible(locationRow, Boolean(location));
   setText(document.querySelector('[data-home-upcoming-location]'), location);
@@ -131,6 +206,7 @@ async function loadUpcomingEvent() {
 }
 
 async function init() {
+  initHomeSlider();
   await waitForLayoutReady();
   await loadUpcomingEvent();
 }

@@ -30,7 +30,20 @@ export class StorageService {
 
     return apiClient.post('/storage/images', data);
   }
+
+  listFiles() {
+    return apiClient.get('/storage/files');
+  }
+
+  deleteFiles(paths) {
+    return apiClient.request('/storage/files', {
+      method: 'DELETE',
+      body: { paths }
+    });
+  }
 }
 
 export const storageService = new StorageService();
 export const uploadImage = (file, options) => storageService.uploadImage(file, options);
+export const listStorageFiles = () => storageService.listFiles();
+export const deleteStorageFiles = (paths) => storageService.deleteFiles(paths);

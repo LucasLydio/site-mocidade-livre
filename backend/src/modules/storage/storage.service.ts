@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
-import { uploadStorageFile } from "../../config/storage";
+import { deleteStorageFiles, getStoragePublicUrl, productImagesBucket, storageBucketName, uploadStorageFile } from "../../config/storage";
+import { prisma } from "../../infra/prisma/prisma.client";
 import { AppError } from "../../shared/errors/app-error";
 import {
   allowedImageExtensions,
@@ -25,6 +26,41 @@ type UploadImageInput = {
   folder: UploadFolder;
   file: MultipartFile;
 };
+
+type StorageUsage = {
+  type: "area" | "event" | "product_image";
+  id: string;
+  label: string;
+};
+
+type StorageFile = {
+  path: string;
+  name: string;
+  folder: string;
+  publicUrl: string;
+  size: number | null;
+  contentType: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+  isUsed: boolean;
+  usedBy: StorageUsage[];
+};
+
+type BucketListItem = {
+  name: string;
+  id?: string | null;
+  updated_at?: string | null;
+  created_at?: string | null;
+  last_accessed_at?: string | null;
+  metadata?: {
+    size?: number;
+    mimetype?: string;
+    mimeType?: string;
+    [key: string]: unknown;
+  } | null;
+};
+
+const imageExtensions = new Set(["webp", "png", "jpg", "jpeg", "gif", "svg"]);
 
 function parseBoundary(contentType: string): string {
   const match = contentType.match(/boundary=(?:"([^"]+)"|([^;]+))/i);
@@ -175,6 +211,188 @@ function validateImage(file: MultipartFile): AllowedImageMimeType {
   return mimeType as AllowedImageMimeType;
 }
 
+function normalizePath(path: string): string {
+  const normalized = path.replaceAll("\\", "/").replace(/^\/+/, "");
+  const segments = normalized.split("/");
+
+  if (!normalized || segments.some((segment) => !segment || segment === "." || segment === "..")) {
+    throw new AppError(400, "Caminho de storage invalido.");
+  }
+
+  return normalized;
+}
+
+function isImagePath(path: string): boolean {
+  const extension = path.split(".").pop()?.toLowerCase() ?? "";
+  return imageExtensions.has(extension);
+}
+
+function isBucketFile(item: BucketListItem): boolean {
+  return Boolean(item.metadata) || Boolean(item.id);
+}
+
+function contentTypeFromMetadata(item: BucketListItem): string | null {
+  const value = item.metadata?.mimetype ?? item.metadata?.mimeType;
+  return typeof value === "string" ? value : null;
+}
+
+function fileSizeFromMetadata(item: BucketListItem): number | null {
+  const value = item.metadata?.size;
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function joinPath(folder: string, name: string): string {
+  return [folder, name].filter(Boolean).join("/");
+}
+
+async function listBucketImagesRecursively(folder = ""): Promise<StorageFile[]> {
+  const files: StorageFile[] = [];
+  const pageSize = 100;
+  let offset = 0;
+
+  while (true) {
+    const { data, error } = await productImagesBucket.list(folder, {
+      limit: pageSize,
+      offset,
+      sortBy: { column: "name", order: "asc" }
+    });
+
+    if (error) {
+      throw new AppError(502, `Falha ao listar arquivos do storage: ${error.message}`);
+    }
+
+    const items = (data ?? []) as BucketListItem[];
+
+    for (const item of items) {
+      const path = joinPath(folder, item.name);
+
+      if (!isBucketFile(item)) {
+        files.push(...await listBucketImagesRecursively(path));
+        continue;
+      }
+
+      const contentType = contentTypeFromMetadata(item);
+      if (!(contentType?.startsWith("image/") || isImagePath(path))) {
+        continue;
+      }
+
+      files.push({
+        path,
+        name: item.name,
+        folder,
+        publicUrl: getStoragePublicUrl(path),
+        size: fileSizeFromMetadata(item),
+        contentType,
+        createdAt: item.created_at ?? null,
+        updatedAt: item.updated_at ?? null,
+        isUsed: false,
+        usedBy: []
+      });
+    }
+
+    if (items.length < pageSize) {
+      break;
+    }
+
+    offset += pageSize;
+  }
+
+  return files;
+}
+
+function pathFromPublicUrl(value: string): string | null {
+  try {
+    const url = new URL(value);
+    const marker = `/storage/v1/object/public/${storageBucketName}/`;
+    const markerIndex = url.pathname.indexOf(marker);
+
+    if (markerIndex === -1) return null;
+
+    return decodeURIComponent(url.pathname.slice(markerIndex + marker.length));
+  } catch {
+    return null;
+  }
+}
+
+function addUsage(
+  usageByPath: Map<string, StorageUsage[]>,
+  path: string | null,
+  usage: StorageUsage
+): void {
+  if (!path) return;
+
+  const normalized = path.replaceAll("\\", "/").replace(/^\/+/, "");
+  const usages = usageByPath.get(normalized) ?? [];
+  usages.push(usage);
+  usageByPath.set(normalized, usages);
+}
+
+async function storageUsageByPath(): Promise<Map<string, StorageUsage[]>> {
+  const [areas, events, productImages] = await prisma.$transaction([
+    prisma.area.findMany({
+      where: { coverImageUrl: { not: null } },
+      select: { id: true, name: true, coverImageUrl: true }
+    }),
+    prisma.event.findMany({
+      where: { coverImageUrl: { not: null } },
+      select: { id: true, title: true, coverImageUrl: true }
+    }),
+    prisma.productImage.findMany({
+      where: { imageUrl: { not: "" } },
+      select: { id: true, imageUrl: true, altText: true, product: { select: { name: true } } }
+    })
+  ]);
+
+  const usageByPath = new Map<string, StorageUsage[]>();
+
+  for (const area of areas) {
+    addUsage(usageByPath, pathFromPublicUrl(area.coverImageUrl ?? ""), {
+      type: "area",
+      id: area.id,
+      label: area.name
+    });
+  }
+
+  for (const event of events) {
+    addUsage(usageByPath, pathFromPublicUrl(event.coverImageUrl ?? ""), {
+      type: "event",
+      id: event.id,
+      label: event.title
+    });
+  }
+
+  for (const image of productImages) {
+    addUsage(usageByPath, pathFromPublicUrl(image.imageUrl), {
+      type: "product_image",
+      id: image.id,
+      label: image.product?.name || image.altText || "Imagem de produto"
+    });
+  }
+
+  return usageByPath;
+}
+
+async function listAnalyzedFiles(): Promise<StorageFile[]> {
+  const [files, usageByPath] = await Promise.all([
+    listBucketImagesRecursively(),
+    storageUsageByPath()
+  ]);
+
+  return files
+    .map((file) => {
+      const usedBy = usageByPath.get(file.path) ?? [];
+      return {
+        ...file,
+        isUsed: usedBy.length > 0,
+        usedBy
+      };
+    })
+    .sort((a, b) => {
+      if (a.isUsed !== b.isUsed) return Number(a.isUsed) - Number(b.isUsed);
+      return a.path.localeCompare(b.path);
+    });
+}
+
 export const storageService = {
   async uploadImage({ folder, file }: UploadImageInput) {
     const contentType = validateImage(file);
@@ -198,6 +416,56 @@ export const storageService = {
       contentType,
       size: file.content.length,
       originalName: file.filename
+    };
+  },
+
+  async listFiles() {
+    const files = await listAnalyzedFiles();
+    const totalBytes = files.reduce((sum, file) => sum + (file.size ?? 0), 0);
+    const unusedBytes = files.reduce((sum, file) => sum + (file.isUsed ? 0 : file.size ?? 0), 0);
+
+    return {
+      bucket: storageBucketName,
+      summary: {
+        total: files.length,
+        used: files.filter((file) => file.isUsed).length,
+        unused: files.filter((file) => !file.isUsed).length,
+        totalBytes,
+        unusedBytes
+      },
+      files
+    };
+  },
+
+  async deleteUnusedFiles(paths: string[]) {
+    const requestedPaths = Array.from(new Set(paths.map(normalizePath)));
+    const files = await listAnalyzedFiles();
+    const byPath = new Map(files.map((file) => [file.path, file]));
+
+    const deleted: string[] = [];
+    const skipped: Array<{ path: string; reason: string; usedBy?: StorageUsage[] }> = [];
+
+    for (const path of requestedPaths) {
+      const file = byPath.get(path);
+
+      if (!file) {
+        skipped.push({ path, reason: "Arquivo nao encontrado no bucket." });
+        continue;
+      }
+
+      if (file.isUsed) {
+        skipped.push({ path, reason: "Arquivo em uso.", usedBy: file.usedBy });
+        continue;
+      }
+
+      deleted.push(path);
+    }
+
+    await deleteStorageFiles(deleted);
+
+    return {
+      deleted,
+      skipped
     };
   }
 };

@@ -1,38 +1,263 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Mocidade Livre</title>
-    <meta name="description" content="Mocidade Livre: comunidade, eventos, áreas e loja." />
+    <meta
+      name="description"
+      content="Mocidade Livre: uma juventude para viver a fé, criar laços, servir com alegria e acompanhar eventos da comunidade."
+    />
     <link rel="canonical" href="https://mocidadelivre.netlify.app/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Mocidade Livre" />
     <meta property="og:title" content="Mocidade Livre" />
-    <meta property="og:description" content="Mocidade Livre: comunidade, eventos, áreas e loja." />
+    <meta
+      property="og:description"
+      content="Uma juventude para viver a fé, criar laços, servir com alegria e acompanhar eventos da comunidade."
+    />
     <meta property="og:url" content="https://mocidadelivre.netlify.app/" />
     <meta property="og:image" content="https://mocidadelivre.netlify.app/assets/images/logo-mocidade.webp" />
     <meta property="og:image:alt" content="Logo da Mocidade Livre" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Mocidade Livre" />
-    <meta name="twitter:description" content="Mocidade Livre: comunidade, eventos, áreas e loja." />
+    <meta
+      name="twitter:description"
+      content="Uma juventude para viver a fé, criar laços, servir com alegria e acompanhar eventos da comunidade."
+    />
     <meta name="twitter:image" content="https://mocidadelivre.netlify.app/assets/images/logo-mocidade.webp" />
-    <link href="https://fonts.googleapis.com/css2?family=Delius&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Crafty+Girls&family=Montserrat:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preload" href="assets/images/home/livre02.PNG" as="image" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="assets/css/main.css" />
     <link rel="stylesheet" href="assets/css/pages/home.css" />
-    <link rel="icon" href="assets/images/logo-mocidade.webp" type="image/svg+xml" />
+    <link rel="icon" href="assets/images/logo-mocidade.webp" type="image/webp" />
   </head>
   <body class="home">
     <div data-include="components/layout/header.html"></div>
 
-    <main class="main py-5">
-      <div data-include="components/home/hero.html"></div>
-      <div data-include="components/home/welcome.html"></div>
-      <div data-include="components/home/upcoming-events.html"></div>
-      <div data-include="components/home/gallery-preview.html"></div>
-      <div data-include="components/home/call-to-action.html"></div>
+    <main class="home-main" id="conteudo">
+      <section class="home-hero" aria-labelledby="home-title" data-home-slider>
+        <div class="home-slider" role="region" aria-roledescription="carousel" aria-label="Momentos da Mocidade Livre">
+          <article class="home-slide is-active" data-home-slide>
+            <img
+              class="home-slide__image"
+              src="assets/images/home//DSC0074.webp"
+              alt="Jovens abraçados em um encontro da Mocidade Livre"
+              fetchpriority="high"
+            />
+            <p class="home-slide__message">Aqui ninguém caminha sozinho.</p>
+          </article>
+
+          <article class="home-slide" data-home-slide aria-hidden="true">
+            <img
+              class="home-slide__image"
+              src="assets/images/home/DSC0332.webp"
+              alt="Músicos ministrando durante um culto da Mocidade Livre"
+              loading="lazy"
+              decoding="async"
+            />
+            <p class="home-slide__message">Louvor, presença e coração aberto.</p>
+          </article>
+
+          <article class="home-slide" data-home-slide aria-hidden="true">
+            <img
+              class="home-slide__image"
+              src="assets/images/home/livre04.webp"
+              alt="Cartão com a mensagem Sorria, Jesus te ama"
+              loading="lazy"
+              decoding="async"
+            />
+            <p class="home-slide__message">Sorria. Jesus te ama.</p>
+          </article>
+
+          <article class="home-slide" data-home-slide aria-hidden="true">
+            <img
+              class="home-slide__image"
+              src="assets/images/home/DSC0003.webp"
+              alt="Jovem da Mocidade Livre"
+              loading="lazy"
+              decoding="async"
+            />
+            <p class="home-slide__message">Existe um lugar para a sua voz.</p>
+          </article>
+        </div>
+
+        <div class="home-hero__shade" aria-hidden="true"></div>
+
+        <div class="home-hero__content">
+          <p class="home-kicker"><span>vem com a gente</span> Mocidade Livre</p>
+          <h1 id="home-title">Uma juventude livre para viver Jesus de perto.</h1>
+          <p class="home-hero__lead">
+            Encontros, amizades, serviço e momentos que fortalecem a fé no caminho real da vida.
+          </p>
+          <div class="home-hero__actions" aria-label="Ações principais">
+            <a class="btn home-btn home-btn--primary" href="events.html">
+              <i class="bi bi-calendar-event" aria-hidden="true"></i>
+              Ver eventos
+            </a>
+            <a class="btn home-btn home-btn--light" href="contact-interests.html">
+              <i class="bi bi-chat-dots" aria-hidden="true"></i>
+              Quero participar
+            </a>
+          </div>
+        </div>
+
+        <div class="home-slider__controls" role="group" aria-label="Controle dos slides">
+          <button class="home-slider__arrow" type="button" data-home-slider-prev aria-label="Slide anterior">
+            <i class="bi bi-arrow-left-short" aria-hidden="true"></i>
+          </button>
+          <div class="home-slider__dots" role="group" aria-label="Escolher slide">
+            <button class="home-slider__dot is-active" type="button" data-home-slider-dot aria-label="Ver slide 1" aria-current="true"></button>
+            <button class="home-slider__dot" type="button" data-home-slider-dot aria-label="Ver slide 2"></button>
+            <button class="home-slider__dot" type="button" data-home-slider-dot aria-label="Ver slide 3"></button>
+            <button class="home-slider__dot" type="button" data-home-slider-dot aria-label="Ver slide 4"></button>
+          </div>
+          <button class="home-slider__arrow" type="button" data-home-slider-next aria-label="Próximo slide">
+            <i class="bi bi-arrow-right-short" aria-hidden="true"></i>
+          </button>
+        </div>
+      </section>
+
+      <section class="home-section home-welcome" aria-labelledby="welcome-title">
+        <div class="home-section__intro">
+          <p class="home-kicker"><span>bem-vindo</span> pode chegar</p>
+          <h2 id="welcome-title">A casa é simples: fé viva, amizade de verdade e vontade de servir.</h2>
+          <p>
+            A Mocidade Livre existe para conectar pessoas a Jesus e umas às outras. Aqui você encontra espaço para
+            crescer, perguntar, celebrar, ajudar e fazer parte de algo maior.
+          </p>
+        </div>
+
+        <div class="home-values" aria-label="O que você encontra na Mocidade Livre">
+          <article class="home-value">
+            <i class="bi bi-heart-pulse" aria-hidden="true"></i>
+            <h3>Encontrar</h3>
+            <p>Momentos de palavra, louvor e oração para alinhar o coração com Deus.</p>
+          </article>
+          <article class="home-value">
+            <i class="bi bi-people" aria-hidden="true"></i>
+            <h3>Pertencer</h3>
+            <p>Gente caminhando junto, cuidando de perto e celebrando cada passo.</p>
+          </article>
+          <article class="home-value">
+            <i class="bi bi-stars" aria-hidden="true"></i>
+            <h3>Servir</h3>
+            <p>Áreas, equipes e projetos para transformar fé em atitude com alegria.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="home-section home-upcoming" aria-labelledby="upcoming-title" data-home-upcoming-section>
+        <div class="home-section__header">
+          <div>
+            <p class="home-kicker"><span>agenda</span> fica ligado</p>
+            <h2 id="upcoming-title">Próximo encontro</h2>
+          </div>
+          <a class="home-link" href="events.html">
+            Ver todos
+            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+          </a>
+        </div>
+
+        <div class="home-state" data-home-upcoming-loading>
+          <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+          <span>Carregando o próximo evento...</span>
+        </div>
+
+        <a class="home-event d-none" data-home-upcoming-card href="events.html" aria-label="Ver detalhes do próximo evento">
+          <div class="home-event__media">
+            <img class="home-event__image" data-home-upcoming-cover alt="" loading="lazy" decoding="async" />
+            <span class="home-event__tag">
+              <i class="bi bi-calendar-heart" aria-hidden="true"></i>
+              Próximo
+            </span>
+          </div>
+          <div class="home-event__content">
+            <span class="home-event__date" data-home-upcoming-date-chip></span>
+            <h3 data-home-upcoming-title></h3>
+            <p data-home-upcoming-summary></p>
+            <div class="home-event__meta">
+              <span>
+                <i class="bi bi-clock" aria-hidden="true"></i>
+                <span data-home-upcoming-datetime></span>
+              </span>
+              <span data-home-upcoming-location-row>
+                <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                <span data-home-upcoming-location></span>
+              </span>
+            </div>
+            <span class="home-event__cta">
+              Ver detalhes
+              <i class="bi bi-arrow-right" aria-hidden="true"></i>
+            </span>
+          </div>
+        </a>
+
+        <div class="home-empty d-none" data-home-upcoming-empty>
+          <i class="bi bi-calendar-x" aria-hidden="true"></i>
+          <h3>Nenhum evento próximo publicado.</h3>
+          <p>Volte em breve ou acompanhe a página de eventos para não perder as novidades.</p>
+        </div>
+      </section>
+
+      <section class="home-section home-gallery" aria-labelledby="gallery-title">
+        <div class="home-section__header">
+          <div>
+            <p class="home-kicker"><span>momentos</span> nossa galeria</p>
+            <h2 id="gallery-title">Um pouco do que a gente vive junto</h2>
+          </div>
+          <a class="home-link" href="areas.html">
+            Conhecer áreas
+            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+          </a>
+        </div>
+
+        <div class="home-gallery__grid">
+          <figure class="home-photo home-photo--large">
+            <img src="assets/images/home/livre05.webp" alt="Jovens sorrindo durante um encontro" loading="lazy" decoding="async" />
+            <figcaption>amizade que abraça</figcaption>
+          </figure>
+          <figure class="home-photo">
+            <img src="assets/images/home/livre01.PNG" alt="Jovem falando ao microfone" loading="lazy" decoding="async" />
+            <figcaption>palavra que encoraja</figcaption>
+          </figure>
+          <figure class="home-photo">
+            <img src="assets/images/home/retiro01.webp" alt="Dois jovens sorrindo em um retiro" loading="lazy" decoding="async" />
+            <figcaption>retiro com propósito</figcaption>
+          </figure>
+          <figure class="home-photo home-photo--wide">
+            <img src="assets/images/home/livre02.PNG" alt="Jovens abraçados em uma roda de comunhão" loading="lazy" decoding="async" />
+            <figcaption>todo mundo junto</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="home-section home-cta" aria-labelledby="cta-title">
+        <div>
+          <p class="home-kicker"><span>sua vez</span> bora participar</p>
+          <h2 id="cta-title">Tem espaço para você viver, servir e crescer com a gente.</h2>
+          <p>
+            Chame a Mocidade Livre, conheça as áreas, acompanhe os encontros e dê o próximo passo com tranquilidade.
+          </p>
+        </div>
+        <div class="home-cta__actions">
+          <a class="btn home-btn home-btn--primary" href="contact-interests.html">
+            <i class="bi bi-send" aria-hidden="true"></i>
+            Falar com a gente
+          </a>
+          <a class="btn home-btn home-btn--outline" href="register.html">
+            <i class="bi bi-person-plus" aria-hidden="true"></i>
+            Fazer cadastro
+          </a>
+        </div>
+      </section>
     </main>
 
     <div data-include="components/layout/footer.html"></div>

@@ -2,4 +2,4 @@
 .netlify/
 .npm-cache/
 node_modules/
-.env.example2
+*.log

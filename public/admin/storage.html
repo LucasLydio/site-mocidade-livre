@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin • Storage • Mocidade Livre</title>
+    <meta name="description" content="Gerenciamento de imagens do storage da Mocidade Livre." />
+    <link rel="canonical" href="https://mocidadelivre.netlify.app/admin/storage.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Mocidade Livre" />
+    <meta property="og:title" content="Admin • Storage • Mocidade Livre" />
+    <meta property="og:description" content="Gerenciamento de imagens do storage da Mocidade Livre." />
+    <meta property="og:url" content="https://mocidadelivre.netlify.app/admin/storage.html" />
+    <meta property="og:image" content="https://mocidadelivre.netlify.app/assets/images/logo-mocidade.webp" />
+    <meta property="og:image:alt" content="Logo da Mocidade Livre" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Admin • Storage • Mocidade Livre" />
+    <meta name="twitter:description" content="Gerenciamento de imagens do storage da Mocidade Livre." />
+    <meta name="twitter:image" content="https://mocidadelivre.netlify.app/assets/images/logo-mocidade.webp" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Delius&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <link rel="stylesheet" href="../assets/css/pages/admin.css" />
+    <link rel="stylesheet" href="../assets/css/pages/admin-storage.css" />
+    <link rel="icon" href="../assets/images/logo-mocidade.webp" type="image/svg+xml" />
+  </head>
+  <body class="admin admin-storage">
+    <div data-include="../components/layout/header.html"></div>
+
+    <main class="container py-5">
+      <section class="admin-shell p-3 p-md-4 rounded-4 border" style="background: var(--surface); border-color: var(--border)">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+          <div>
+            <h1 class="h4 mb-1">Storage</h1>
+            <p class="text-secondary mb-0">Veja imagens do bucket e remova arquivos que não estão em uso.</p>
+          </div>
+          <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary btn-sm" href="./index.html">
+              <i class="bi bi-grid me-2" aria-hidden="true"></i>Admin
+            </a>
+            <button class="btn btn-outline-secondary btn-sm" type="button" data-storage-refresh>
+              <i class="bi bi-arrow-clockwise me-2" aria-hidden="true"></i>Atualizar
+            </button>
+          </div>
+        </div>
+
+        <div class="alert d-none" id="storage-alert" role="alert"></div>
+
+        <div class="row g-3 mb-4" data-storage-summary>
+          <div class="col-6 col-lg-3">
+            <div class="storage-stat rounded-4 border p-3">
+              <div class="text-secondary small">Total</div>
+              <div class="h4 mb-0" data-storage-total>0</div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="storage-stat rounded-4 border p-3">
+              <div class="text-secondary small">Usadas</div>
+              <div class="h4 mb-0" data-storage-used>0</div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="storage-stat rounded-4 border p-3">
+              <div class="text-secondary small">Não usadas</div>
+              <div class="h4 mb-0" data-storage-unused>0</div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="storage-stat rounded-4 border p-3">
+              <div class="text-secondary small">Liberável</div>
+              <div class="h4 mb-0" data-storage-unused-size>0 B</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="storage-toolbar rounded-4 border p-3 mb-4">
+          <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-5">
+              <label class="form-label" for="storage-search">Buscar</label>
+              <input class="form-control bg-transparent text-body" id="storage-search" type="search" placeholder="products/2026..." data-storage-search />
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <label class="form-label" for="storage-filter">Filtro</label>
+              <select class="form-select bg-transparent text-body" id="storage-filter" data-storage-filter>
+                <option value="all">Todas</option>
+                <option value="unused">Não usadas</option>
+                <option value="used">Usadas</option>
+              </select>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 d-flex gap-2">
+              <button class="btn btn-outline-secondary flex-grow-1" type="button" data-storage-select-unused>
+                Selecionar não usadas
+              </button>
+              <button class="btn btn-outline-danger flex-grow-1" type="button" data-storage-delete-selected disabled>
+                Excluir selecionadas
+              </button>
+            </div>
+          </div>
+          <div class="text-secondary small mt-2" data-storage-selection>0 imagens selecionadas.</div>
+        </div>
+
+        <div class="text-secondary small" data-storage-loading>Carregando imagens...</div>
+        <div class="text-secondary small d-none" data-storage-empty>Nenhuma imagem encontrada.</div>
+        <div class="storage-grid d-none" data-storage-grid></div>
+      </section>
+    </main>
+
+    <div data-include="../components/layout/footer.html"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="../assets/js/components/include.js"></script>
+    <script type="module" src="../assets/js/pages/admin/storage.js"></script>
+  </body>
+</html>

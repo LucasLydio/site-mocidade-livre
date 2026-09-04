@@ -2,8 +2,9 @@ import { requirePermission } from "../../middlewares/rbac.middleware";
 import { AppError } from "../../shared/errors/app-error";
 import type { HttpRequest, HttpResponse } from "../../types/http.types";
 import { successResponse } from "../../utils/response";
+import { validateBody } from "../../middlewares/validate.middleware";
 import { parseMultipartFormData, storageService } from "./storage.service";
-import { uploadFolderSchema } from "./storage.schema";
+import { deleteStorageFilesSchema, uploadFolderSchema } from "./storage.schema";
 
 export const storageController = {
   async uploadImage(request: HttpRequest): Promise<HttpResponse> {
@@ -20,5 +21,16 @@ export const storageController = {
     const uploaded = await storageService.uploadImage({ folder, file });
 
     return successResponse(uploaded, { statusCode: 201 });
+  },
+
+  async listFiles(request: HttpRequest): Promise<HttpResponse> {
+    requirePermission(request, "storage.read");
+    return successResponse(await storageService.listFiles());
+  },
+
+  async deleteFiles(request: HttpRequest): Promise<HttpResponse> {
+    requirePermission(request, "storage.delete");
+    const input = validateBody(deleteStorageFilesSchema, request.body);
+    return successResponse(await storageService.deleteUnusedFiles(input.paths));
   }
 };
