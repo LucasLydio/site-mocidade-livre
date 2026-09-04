@@ -1,8 +1,5 @@
 body {
   background: var(--bg);
-  @media (max-width: 680px) {
-    margin-top: 3rem !important;
-  }
 }
 
 html[data-theme="dark"] .btn-outline-secondary {

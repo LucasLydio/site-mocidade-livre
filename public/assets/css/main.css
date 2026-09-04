@@ -299,9 +299,6 @@ html[data-theme="dark"] .site-paper-plane__paper {
 }
 
 @media (max-width: 575.98px) {
-  body {
-    margin-top: 4.25rem !important;
-  }
 
   h1 {
     font-size: 1.9rem !important;

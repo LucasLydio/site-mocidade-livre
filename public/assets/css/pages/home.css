@@ -19,7 +19,7 @@
   display: grid;
   align-items: center;
   min-height: 520px;
-  height: min(74svh, 640px);
+  /* height: min(74svh, 640px); */
   overflow: hidden;
   border: 1px solid var(--home-line);
   border-radius: var(--radius);
@@ -67,12 +67,12 @@
   position: absolute;
   right: 2rem;
   bottom: 5.75rem;
-  z-index: 2;
+  z-index: 20;
   max-width: 22rem;
   padding: 0.65rem 0.95rem;
   border: 1px solid rgba(255, 255, 255, 0.42);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.82);
+  background: rgb(255, 255, 255);
   color: var(--ink);
   font-family: var(--font-hand);
   font-size: 1.55rem !important;
@@ -82,9 +82,9 @@
 }
 
 .home-hero__shade {
-  z-index: 1;
+  z-index: 0;
   background:
-    linear-gradient(90deg, rgba(16, 21, 19, 0.86) 0%, rgba(16, 21, 19, 0.58) 42%, rgba(16, 21, 19, 0.18) 100%),
+    linear-gradient(90deg, rgba(16, 21, 19, 0.747) 0%, rgba(16, 21, 19, 0.329) 42%, rgba(16, 21, 19, 0.705) 100%),
     linear-gradient(0deg, rgba(16, 21, 19, 0.44) 0%, rgba(16, 21, 19, 0) 45%);
   pointer-events: none;
 }
@@ -103,7 +103,7 @@
 }
 
 .home-hero__content h1 {
-  font-size: 3.75rem !important;
+  font-size: 3.15rem !important;
 }
 
 .home-section h2,
@@ -153,6 +153,10 @@
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 1.6rem;
+}
+
+.home-link {
+  color: #fff !important;
 }
 
 .home-btn {
@@ -594,18 +598,14 @@
     --home-section: 3.75rem;
   }
 
-  .home-main {
-    padding-top: 0.75rem;
-  }
-
   .home-hero {
-    min-height: 500px;
+    min-height: 560px;
     align-items: end;
   }
 
   .home-hero__shade {
     background:
-      linear-gradient(0deg, rgba(16, 21, 19, 0.9) 0%, rgba(16, 21, 19, 0.58) 58%, rgba(16, 21, 19, 0.16) 100%);
+      linear-gradient(0deg, rgba(16, 21, 19, 0.9) 0%, rgba(16, 21, 19, 0.555) 58%, rgba(16, 21, 19, 0.199) 100%);
   }
 
   .home-hero__content {
@@ -615,6 +615,7 @@
   .home-hero__actions,
   .home-cta__actions {
     width: 100%;
+    display: none;
   }
 
   .home-btn {
@@ -631,7 +632,8 @@
   }
 
   .home-hero__content h1 {
-    font-size: 2.15rem !important;
+    display: none;
+    font-size: 1.15rem !important;
   }
 
   .home-section h2,
@@ -641,7 +643,7 @@
 
   .home-slider__controls {
     right: 1rem;
-    bottom: 4.65rem;
+    bottom: 1.65rem;
     left: 1rem;
     justify-content: space-between;
   }
