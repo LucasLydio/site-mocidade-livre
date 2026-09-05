@@ -1,12 +1,25 @@
-<div data-include="components/areas/area-hero.html"></div>
 
-<section>
+<section class="areas-map-section" aria-labelledby="areas-map-title">
+  <div class="areas-map__header">
+    <p class="areas-eyebrow">cada área tem um propósito</p>
+    <h2 id="areas-map-title">Escolha onde você quer servir</h2>
+  </div>
+
   <div class="alert d-none" data-areas-alert role="alert"></div>
-  <div class="text-secondary small" data-areas-loading>Carregando...</div>
 
-  <div class="row g-3 d-none" data-areas-grid></div>
+  <div class="areas-state" data-areas-loading>
+    <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+    <span>Carregando áreas...</span>
+  </div>
 
-  <div class="text-secondary small d-none" data-areas-empty>Nenhuma área ativa no momento.</div>
+  <div class="areas-orbit-shell">
+    <div class="areas-orbit__center" aria-hidden="true">
+      <img src="assets/images/logo-mocidade.webp" alt="" width="150" height="150" />
+    </div>
+    <div class="areas-orbit d-none" data-areas-grid aria-label="Áreas disponíveis"></div>
+  </div>
+
+  <div class="areas-empty d-none" data-areas-empty>Nenhuma área ativa no momento.</div>
 
   <div data-include="components/areas/area-card.html"></div>
 </section>

@@ -36,11 +36,13 @@ function renderAreas(areas) {
   const items = Array.isArray(areas) ? areas : [];
   if (empty) empty.classList.toggle('d-none', items.length !== 0);
   grid.classList.toggle('d-none', items.length === 0);
+  grid.style.setProperty('--area-count', String(Math.max(items.length, 1)));
 
   const tpl = document.getElementById('area-card-template');
 
-  for (const area of items) {
+  items.forEach((area, index) => {
     const node = tpl?.content?.firstElementChild ? tpl.content.firstElementChild.cloneNode(true) : document.createElement('div');
+    node.style.setProperty('--area-index', String(index));
 
     node.querySelector('[data-area-name]')?.append(area.name);
     node.querySelector('[data-area-description]')?.append(area.description || '');
@@ -59,10 +61,11 @@ function renderAreas(areas) {
       const url = new URL('contact-interests.html', window.location.href);
       url.searchParams.set('area', area.slug);
       cta.setAttribute('href', url.pathname + url.search);
+      cta.setAttribute('aria-label', `Quero participar da área ${area.name}`);
     }
 
     grid.appendChild(node);
-  }
+  });
 }
 
 async function init() {

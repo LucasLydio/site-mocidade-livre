@@ -1,12 +1,9 @@
 .site-header {
+  position: relative;
+  width: 100%;
   border-color: var(--border) !important;
-  @media (max-width: 680px) {
-    width: 100%;
-    position: fixed;
-    top: 0;
-    background-color: var(--bg);
-    z-index: 30;
-  }
+  background-color: transparent !important;
+  z-index: 1;
 }
 
 .site-logo img {
@@ -62,5 +59,11 @@
     &:hover {
       background-color: var(--surface);
     }
+  }
+}
+
+@media (max-width: 768px) {
+  .site-nav {
+    display: none;
   }
 }

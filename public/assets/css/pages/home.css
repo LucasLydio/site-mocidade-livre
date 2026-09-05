@@ -1,5 +1,5 @@
 .home {
-  --home-max: 1180px;
+  --home-max: 1380px;
   --home-pad: 1rem;
   --home-section: 5rem;
   --home-card: var(--surface);
@@ -19,7 +19,7 @@
   display: grid;
   align-items: center;
   min-height: 520px;
-  /* height: min(74svh, 640px); */
+  height: min(84svh, 940px);
   overflow: hidden;
   border: 1px solid var(--home-line);
   border-radius: var(--radius);

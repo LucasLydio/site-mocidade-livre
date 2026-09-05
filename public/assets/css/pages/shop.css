@@ -7,6 +7,18 @@
   display: block;
 }
 
+.cart-shop {
+  z-index: 30000;
+}
+
+.offcanvas {
+  z-index: 1055 !important;
+}
+
+.offcanvas-backdrop {
+  z-index: 1050 !important;
+}
+
 .product-card .product-desc {
   display: -webkit-box;
   -webkit-line-clamp: 2;

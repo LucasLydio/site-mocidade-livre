@@ -1,21 +1,13 @@
 <template id="area-card-template">
-  <div class="col-12  col-md-6 col-lg-4">
-    <div class="p-3 rounded-2  border h-100" style="background: var(--surface); border-color: var(--border)">
-      <div class="ratio ratio-16x9 rounded-2 overflow-hidden border" style="border-color: var(--border)">
-        <img data-area-image class="w-100 h-100 object-fit-cover" alt="" />
-      </div>
-
-      <div class="mt-3">
-        <div class="fw-semibold" data-area-name></div>
-        <div class="text-secondary small mt-1 area-desc" data-area-description></div>
-      </div>
-
-      <div class="mt-3 d-flex gap-2">
-        <a class="btn btn-dark btn-sm" data-area-cta href="contact-interests.html">
-          <i class="bi bi-chat-dots me-2" aria-hidden="true"></i>Falar com a gente
-        </a>
-      </div>
-    </div>
+  <div class="area-orbit__item">
+    <a class="area-circle" data-area-cta href="contact-interests.html">
+      <span class="area-circle__image">
+        <img data-area-image alt="" loading="lazy" decoding="async" />
+      </span>
+      <span class="area-circle__content">
+        <span class="area-circle__title" data-area-name></span>
+        <span class="area-circle__summary" data-area-description></span>
+      </span>
+    </a>
   </div>
 </template>
-

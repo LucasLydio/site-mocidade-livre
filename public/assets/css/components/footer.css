@@ -1,3 +1,5 @@
 .site-footer {
+  position: relative;
+  width: 100%;
   border-color: var(--border) !important;
 }
