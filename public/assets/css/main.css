@@ -80,9 +80,6 @@ main,
   z-index: 1;
 }
 
-.site-header {
-  z-index: 30;
-}
 
 .site-art-layer {
   position: fixed;
